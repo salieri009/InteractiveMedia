@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A1A Test</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+  <style>
+    body {
+      margin: 20px;
+      font-family: Arial, sans-serif;
+    }
+    .test-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .canvas-wrapper {
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 10px;
+      background: white;
+      margin: 20px 0;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>🧪 A1A Project Test</h1>
+    <p>Testing A1A project independently...</p>
+    
+    <div id="canvas-wrapper" class="canvas-wrapper">
+      <!-- Canvas will be created here -->
+    </div>
+    
+    <div id="log" style="background: #f0f0f0; padding: 10px; border-radius: 4px; margin-top: 20px; font-family: monospace; font-size: 12px;">
+      <strong>Debug Log:</strong><br>
+    </div>
+  </div>
+
+  <script>
+    // Log function
+    function log(message) {
+      const logDiv = document.getElementById('log');
+      logDiv.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '<br>';
+      console.log(message);
+    }
+
+    // A1A project functions (copied from A1A.js)
+    function setupA1A() {
+      log("🎨 A1A project setup started!");
+      
+      // Check if p5.js functions are available
+      if (typeof createCanvas === 'undefined') {
+        log('❌ p5.js not loaded! createCanvas function not available.');
+        return;
+      }
+      
+      log("✅ A1A project initialized successfully!");
+    }
+
+    function drawA1A() {
+      // Check if p5.js functions are available
+      if (typeof background === 'undefined') {
+        log('❌ p5.js functions not available in drawA1A!');
+        return;
+      }
+
+      // Clear background with light gray
+      background(220);
+      
+      log('🎨 Drawing A1A shapes...');
+
+      // Basic shapes demonstration
+      drawBasicShapes();
+    }
+
+    function drawBasicShapes() {
+      // Check if p5.js drawing functions are available
+      if (typeof stroke === 'undefined' || typeof fill === 'undefined') {
+        log('❌ p5.js drawing functions not available!');
+        return;
+      }
+
+      // Line from (0,0) to (100,100)
+      stroke(0);
+      strokeWeight(2);
+      line(0, 0, 100, 100);
+      
+      // Square at (100,100) with size 50
+      fill(150, 200, 255);
+      square(100, 100, 50);
+      
+      // Circle at (200,200) with diameter 25
+      fill(255, 150, 150);
+      circle(200, 200, 25);
+      
+      // Rectangle at (10,25) with width 50, height 50
+      fill(150, 255, 150);
+      rect(10, 25, 50, 50);
+      
+      log('🖼️ Basic shapes drawn successfully!');
+    }
+
+    // p5.js setup and draw functions
+    function setup() {
+      log('📝 p5.js setup() called');
+      let canvas = createCanvas(400, 400);
+      canvas.parent('canvas-wrapper');
+      log('✅ Canvas created and attached to canvas-wrapper');
+      
+      setupA1A();
+    }
+
+    function draw() {
+      drawA1A();
+    }
+
+    // Initialize when page loads
+    window.addEventListener('load', () => {
+      log('🔄 Page loaded, p5.js should start automatically');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Media Assignment - Project Hub</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+</head>
+<body>
+  <div id="app-container">
+    <!-- Header Section -->
+    <header id="app-header">
+      <h1>🎨 Interactive Media Projects</h1>
+      <p>UTS 2025 - Assignment Collection</p>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content">
+      <!-- Project Selection Buttons -->
+      <section id="project-selector">
+        <h2>Select Project</h2>
+        <div id="project-buttons" class="button-container">
+          <!-- Project buttons will be dynamically generated -->
+        </div>
+      </section>
+
+      <!-- Canvas and Project Information -->
+      <section id="canvas-section">
+        <div id="project-info" class="project-info">
+          <h3>Please select a project</h3>
+          <p>Click one of the buttons above to view projects.</p>
+        </div>
+        
+        <div id="canvas-wrapper" class="canvas-wrapper">
+          <!-- p5.js canvas will be created here -->
+        </div>
+
+        <!-- Control Panel -->
+        <div id="control-panel" class="control-panel">
+          <!-- Control buttons will be dynamically generated -->
+        </div>
+
+        <!-- Analytics Panel -->
+        <div id="analytics-panel" class="analytics-panel">
+          <!-- Analytics will be displayed here -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer id="app-footer">
+      <p>Made with ❤️ using p5.js | UTS Interactive Media 2025</p>
+    </footer>
+  </div>
+
+  <!-- JavaScript Files - Load order is important -->
+  <script src="js/ProjectManager.js"></script>
+  <script src="js/UIController.js"></script>
+  <script src="js/APIClient.js"></script>
+  <script src="js/A1A.js"></script>
+  <script src="js/A1B.js"></script>
+  <script src="js/A1C.js"></script>
+  <!-- Add new project files here -->
+</body>
+</html>

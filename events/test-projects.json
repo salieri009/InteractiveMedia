@@ -1,0 +1,27 @@
+{
+  "httpMethod": "GET",
+  "path": "/api/projects",
+  "headers": {
+    "Accept": "application/json",
+    "Content-Type": "application/json"
+  },
+  "multiValueHeaders": {},
+  "queryStringParameters": null,
+  "multiValueQueryStringParameters": null,
+  "pathParameters": null,
+  "stageVariables": null,
+  "body": null,
+  "isBase64Encoded": false,
+  "requestContext": {
+    "requestId": "test-request-id",
+    "stage": "prod",
+    "httpMethod": "GET",
+    "path": "/api/projects",
+    "protocol": "HTTP/1.1",
+    "requestTime": "01/Jan/2025:00:00:00 +0000",
+    "requestTimeEpoch": 1704067200,
+    "identity": {
+      "sourceIp": "127.0.0.1"
+    }
+  }
+}

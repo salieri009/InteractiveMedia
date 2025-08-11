@@ -1,0 +1,235 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Interactive Media Assignment - Serverless Backend
+  
+  SAM Template for deploying the Interactive Media Assignment backend
+  to AWS Lambda with API Gateway
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: nodejs18.x
+    Environment:
+      Variables:
+        NODE_ENV: production
+
+Parameters:
+  Stage:
+    Type: String
+    Default: prod
+    Description: The deployment stage (dev, staging, prod)
+  
+  DomainName:
+    Type: String
+    Default: ""
+    Description: Custom domain name (optional)
+
+Resources:
+  # Lambda Function
+  InteractiveMediaAPI:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/
+      Handler: api/index.handler
+      Runtime: nodejs18.x
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          NODE_ENV: !Ref Stage
+          PROJECTS_TABLE: !Ref ProjectsTable
+          ANALYTICS_TABLE: !Ref AnalyticsTable
+          AWS_REGION: !Ref AWS::Region
+      Events:
+        ApiProxy:
+          Type: Api
+          Properties:
+            RestApiId: !Ref InteractiveMediaAPIGateway
+            Path: /{proxy+}
+            Method: ANY
+        ApiRoot:
+          Type: Api
+          Properties:
+            RestApiId: !Ref InteractiveMediaAPIGateway
+            Path: /
+            Method: ANY
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProjectsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AnalyticsTable
+
+  # API Gateway
+  InteractiveMediaAPIGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Stage
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+      GatewayResponses:
+        DEFAULT_4XX:
+          ResponseTemplates:
+            "application/json": '{"message":$context.error.messageString}'
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+              Access-Control-Allow-Headers: "'*'"
+        DEFAULT_5XX:
+          ResponseTemplates:
+            "application/json": '{"message":$context.error.messageString}'
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+              Access-Control-Allow-Headers: "'*'"
+
+  # DynamoDB Tables
+  ProjectsTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: !Sub "${AWS::StackName}-projects"
+      PrimaryKey:
+        Name: id
+        Type: String
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        Project: InteractiveMedia
+        Environment: !Ref Stage
+
+  AnalyticsTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: !Sub "${AWS::StackName}-analytics"
+      PrimaryKey:
+        Name: id
+        Type: String
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        Project: InteractiveMedia
+        Environment: !Ref Stage
+
+  # S3 Bucket for static assets (optional)
+  StaticAssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-static-assets"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      Tags:
+        - Key: Project
+          Value: InteractiveMedia
+        - Key: Environment
+          Value: !Ref Stage
+
+  # CloudFront Distribution for static assets
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt StaticAssetsBucket.RegionalDomainName
+            OriginAccessControlId: !GetAtt CloudFrontOAC.Id
+          - Id: APIOrigin
+            DomainName: !Sub "${InteractiveMediaAPIGateway}.execute-api.${AWS::Region}.amazonaws.com"
+            CustomOriginConfig:
+              HTTPPort: 443
+              OriginProtocolPolicy: https-only
+        Enabled: true
+        Comment: !Sub "${AWS::StackName} CloudFront Distribution"
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled
+        CacheBehaviors:
+          - PathPattern: "/api/*"
+            TargetOriginId: APIOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled
+        PriceClass: PriceClass_100
+
+  # CloudFront Origin Access Control
+  CloudFrontOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "${AWS::StackName}-OAC"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  # S3 Bucket Policy
+  StaticAssetsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref StaticAssetsBucket
+      PolicyDocument:
+        Statement:
+          - Sid: AllowCloudFrontAccess
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: "s3:GetObject"
+            Resource: !Sub "${StaticAssetsBucket}/*"
+            Condition:
+              StringEquals:
+                "AWS:SourceArn": !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  InteractiveMediaApi:
+    Description: "API Gateway endpoint URL for Interactive Media function"
+    Value: !Sub "https://${InteractiveMediaAPIGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/"
+    Export:
+      Name: !Sub "${AWS::StackName}-ApiUrl"
+
+  InteractiveMediaFunction:
+    Description: "Interactive Media Lambda Function ARN"
+    Value: !GetAtt InteractiveMediaAPI.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-FunctionArn"
+
+  ProjectsTableName:
+    Description: "DynamoDB Projects Table Name"
+    Value: !Ref ProjectsTable
+    Export:
+      Name: !Sub "${AWS::StackName}-ProjectsTable"
+
+  AnalyticsTableName:
+    Description: "DynamoDB Analytics Table Name"
+    Value: !Ref AnalyticsTable
+    Export:
+      Name: !Sub "${AWS::StackName}-AnalyticsTable"
+
+  StaticAssetsBucketName:
+    Description: "S3 Bucket for static assets"
+    Value: !Ref StaticAssetsBucket
+    Export:
+      Name: !Sub "${AWS::StackName}-StaticBucket"
+
+  CloudFrontDomainName:
+    Description: "CloudFront Distribution Domain Name"
+    Value: !GetAtt CloudFrontDistribution.DomainName
+    Export:
+      Name: !Sub "${AWS::StackName}-CloudFrontDomain"
+
+  CloudFrontDistributionId:
+    Description: "CloudFront Distribution ID"
+    Value: !Ref CloudFrontDistribution
+    Export:
+      Name: !Sub "${AWS::StackName}-CloudFrontId"

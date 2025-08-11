@@ -1,0 +1,37 @@
+{
+  "name": "interactive-media-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Interactive Media Assignment - UTS 2025",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server . -p 3000 -c-1 --cors",
+    "dev": "npx live-server . --port=3000 --open=/index.html",
+    "build": "npm run copy-assets",
+    "copy-assets": "echo 'Static files ready for deployment'",
+    "test": "echo 'Frontend tests would go here'",
+    "lint": "echo 'Linting would go here'",
+    "preview": "npx http-server . -p 4000 -c-1"
+  },
+  "keywords": [
+    "p5js",
+    "interactive-media",
+    "frontend",
+    "javascript",
+    "uts"
+  ],
+  "author": "UTS Student",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
