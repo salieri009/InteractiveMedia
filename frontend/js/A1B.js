@@ -1,124 +1,93 @@
-// ===============================================
-// Project A1B - Interactive Animation
-// Interactive Media Assignment - A1B.js
-// UTS 2025 Semester 2
-// ===============================================
+let numShapes = 12;         
+let shapeSize = 50;          
+let spacing = 60;            
+let shapeType = "ellipse";   
+let centerSquareSize = 200;  
+let waveAmplitude = 50;      
+let waveSpeed = 0.03;        
+let bgColors = [];           
+let mixedColors = [];        
 
-// A1B project variables
-let circleX = 200;
-let circleY = 200;
-let circleSpeedX = 3;
-let circleSpeedY = 2;
-let circleSize = 50;
-let backgroundColor = 100;
-
-// A1B project functions
-function setupA1B() {
-  console.log("🎨 A1B project initialized!");
-  circleX = 200;
-  circleY = 200;
-  circleSpeedX = 3;
-  circleSpeedY = 2;
-}
-
-function drawA1B() {
-  // Dynamic background
-  background(backgroundColor);
-  
-  // Moving circle
-  drawMovingCircle();
-  
-  // Mouse trail
-  drawMouseTrail();
-  
-  // Information display
-  drawInfo();
-}
-
-// ===============================================
-// A1B Helper Functions
-// ===============================================
-
-function drawMovingCircle() {
-  // Update circle position
-  circleX += circleSpeedX;
-  circleY += circleSpeedY;
-  
-  // Bounce off walls
-  if (circleX > width - circleSize/2 || circleX < circleSize/2) {
-    circleSpeedX *= -1;
-  }
-  if (circleY > height - circleSize/2 || circleY < circleSize/2) {
-    circleSpeedY *= -1;
-  }
-  
-  // Draw circle
-  fill(255, 100, 100, 150);
-  stroke(255);
-  strokeWeight(2);
-  ellipse(circleX, circleY, circleSize);
-}
-
-function drawMouseTrail() {
-  // Draw line to mouse position
-  stroke(255, 255, 100);
-  strokeWeight(1);
-  line(circleX, circleY, mouseX, mouseY);
-  
-  // Small circle at mouse position
-  fill(255, 255, 100);
+function setup() {
+  createCanvas(800, 400);
+  rectMode(CENTER);
+  colorMode(RGB);
   noStroke();
-  ellipse(mouseX, mouseY, 10);
+  initBackground();
+  initMixedColors();
 }
 
-function drawInfo() {
-  // Information text
-  fill(255);
-  textSize(12);
-  text(`Circle: (${int(circleX)}, ${int(circleY)})`, 10, 20);
-  text(`Mouse: (${mouseX}, ${mouseY})`, 10, 35);
-  text('Click: Change color, Space: Speed up', 10, height - 10);
+function draw() {
+  drawQuarterBackground();
+  drawCenterSquare();
+  drawAnimatedShapes();
 }
 
-// ===============================================
-// A1B Interactive Functions
-// ===============================================
-
-function mousePressedA1B() {
-  // Random background color change
-  backgroundColor = random(50, 200);
-  console.log(`A1B - Background color changed: ${backgroundColor}`);
+function initBackground() {
+  bgColors = [
+    color(100, 200, 200),
+    color(200, 255, 200),
+    color(200, 200, 255),
+    color(255, 255, 200)
+  ];
 }
 
-function keyPressedA1B() {
-  if (key === ' ') {
-    // Speed up with spacebar
-    circleSpeedX *= 1.2;
-    circleSpeedY *= 1.2;
-    console.log('A1B - Speed increased!');
-  } else if (key === 'r') {
-    // Reset with R key
-    setupA1B();
-    console.log('A1B - Reset');
+function complementaryColor(c) {
+  let r = 255 - red(c);
+  let g = 255 - green(c);
+  let b = 255 - blue(c);
+  return color(r, g, b);
+}
+
+function drawQuarterBackground() {
+  let w = width / 2;
+  let h = height / 2;
+  for (let i = 0; i < 4; i++) {
+    let r = red(bgColors[i]) + 20 * sin(frameCount * 0.005 + i);
+    let g = green(bgColors[i]) + 20 * cos(frameCount * 0.006 + i);
+    let b = blue(bgColors[i]) + 20 * sin(frameCount * 0.007 - i);
+    fill(constrain(r, 0, 255), constrain(g, 0, 255), constrain(b, 0, 255));
+
+    let x = (i % 2 === 0) ? w / 2 : w + w / 2;
+    let y = (i < 2) ? h / 2 : h + h / 2;
+    rect(x, y, w, h);
   }
 }
 
-// ===============================================
-// Project Registration
-// ===============================================
-
-// Register A1B project with project manager
-if (typeof projectManager !== 'undefined') {
-  projectManager.registerProject(
-    'a1b',
-    'A1B - Interactive Animation',
-    setupA1B,
-    drawA1B,
-    {
-      mousePressed: mousePressedA1B,
-      keyPressed: keyPressedA1B,
-      description: 'An animated project with moving circle and mouse interaction.',
-      canvasSize: { width: 400, height: 400 }
-    }
-  );
+function initMixedColors() {
+  mixedColors = [
+    color(255, 0, 0),
+    color(0, 0, 255)
+  ];
 }
+
+function getMixedColor() {
+  let t1 = (sin(frameCount * 0.02) + 1) / 2;
+  let t2 = (cos(frameCount * 0.015) + 1) / 2;
+  return lerpColor(mixedColors[0], mixedColors[1], (t1 + t2) / 2);
+}
+
+function drawCenterSquare() {
+  fill(getMixedColor());
+  rect(width / 2, height / 2, centerSquareSize, centerSquareSize);
+}
+
+function drawAnimatedShapes() {
+  for (let i = 0; i < numShapes; i++) {
+    let x = spacing * i + shapeSize / 2;
+
+    let factor = 1 + i * 0.1;
+    let y = height / 2 + 
+            abs(pow(noise(i * 0.1, frameCount * 0.01 * factor) * 2 - 1, 1.5)) * waveAmplitude * (i % 2 === 0 ? 1 : -1);
+
+    let c = lerpColor(getMixedColor(), color(255, 255, 255), i / numShapes);
+    fill(c);
+
+    if (shapeType === "ellipse") {
+      ellipse(x, y, shapeSize, shapeSize);
+    } else {
+      rect(x, y, shapeSize, shapeSize);
+    }
+  }
+}
+
