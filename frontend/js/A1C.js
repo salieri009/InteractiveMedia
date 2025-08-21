@@ -17,8 +17,8 @@ function setupA1C() {
   console.log("🎨 A1C project - Pattern Generator initialized!");
   
   // Check if p5.js functions are available
-  if (typeof createCanvas === 'undefined') {
-    console.error('❌ p5.js not loaded! createCanvas function not available.');
+  if (typeof background === 'undefined') {
+    console.error('❌ p5.js not loaded! background function not available.');
     return;
   }
   

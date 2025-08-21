@@ -9,6 +9,62 @@ class ProjectManager {
     this.canvas = null;
     this.isRunning = false;
     this.p5Instance = null;
+    this.p5Ready = false;
+  }
+
+  // Initialize p5.js instance
+  initializeP5() {
+    if (this.p5Ready) return;
+    
+    console.log("🚀 Initializing p5.js instance...");
+    
+    // Create p5 instance with proper setup
+    this.p5Instance = new p5((p) => {
+      // Store p5 instance globally
+      window.p5Instance = p;
+      
+      // Expose p5.js functions and variables globally
+      this.exposeP5Globals(p);
+      
+      // Set up canvas
+      p.setup = () => {
+        // Default canvas size
+        this.canvas = p.createCanvas(400, 400);
+        this.canvas.parent('canvas-wrapper');
+        console.log("🎨 Default canvas created successfully");
+        this.p5Ready = true;
+        
+        // Initialize first project if available
+        if (this.projects.size > 0) {
+          const firstProject = Array.from(this.projects.values())[0];
+          this.switchToProject(firstProject.id);
+        }
+      };
+      
+      p.draw = () => {
+        if (this.currentProject && this.currentProject.draw) {
+          this.currentProject.draw();
+        }
+      };
+      
+      p.mousePressed = () => {
+        if (this.currentProject && this.currentProject.mousePressed) {
+          this.currentProject.mousePressed();
+        }
+      };
+      
+      p.keyPressed = () => {
+        if (this.currentProject && this.currentProject.keyPressed) {
+          this.currentProject.keyPressed();
+        }
+      };
+      
+      p.windowResized = () => {
+        if (this.currentProject && this.currentProject.windowResized) {
+          this.currentProject.windowResized();
+        }
+      };
+    });
   }
 
   // Register a new project
@@ -25,82 +81,97 @@ class ProjectManager {
       canvasSize: options.canvasSize || { width: 400, height: 400 }
     });
     console.log(`📁 Project registered: ${name}`);
+    
+    // Initialize p5 if this is the first project
+    if (!this.p5Ready && typeof p5 !== 'undefined') {
+      this.initializeP5();
+    }
   }
 
   // Expose p5.js functions and variables globally
   exposeP5Globals(p) {
-    // Store p5 instance
-    window.p5Instance = p;
-    
-    // Variables
-    window.mouseX = p.mouseX;
-    window.mouseY = p.mouseY;
-    window.pmouseX = p.pmouseX;
-    window.pmouseY = p.pmouseY;
-    window.width = p.width;
-    window.height = p.height;
-    window.frameCount = p.frameCount;
-    window.key = p.key;
-    window.keyCode = p.keyCode;
-    
-    // Drawing functions
-    window.background = (...args) => p.background(...args);
-    window.fill = (...args) => p.fill(...args);
-    window.noFill = () => p.noFill();
-    window.stroke = (...args) => p.stroke(...args);
-    window.noStroke = () => p.noStroke();
-    window.strokeWeight = (weight) => p.strokeWeight(weight);
-    
-    // Shape functions
-    window.circle = (x, y, d) => p.circle(x, y, d);
-    window.ellipse = (x, y, w, h) => p.ellipse(x, y, w, h);
-    window.rect = (x, y, w, h) => p.rect(x, y, w, h);
-    window.square = (x, y, s) => p.square(x, y, s);
-    window.line = (x1, y1, x2, y2) => p.line(x1, y1, x2, y2);
-    window.point = (x, y) => p.point(x, y);
-    window.triangle = (x1, y1, x2, y2, x3, y3) => p.triangle(x1, y1, x2, y2, x3, y3);
-    
-    // Transform functions
-    window.push = () => p.push();
-    window.pop = () => p.pop();
-    window.translate = (x, y) => p.translate(x, y);
-    window.rotate = (angle) => p.rotate(angle);
-    window.scale = (s) => p.scale(s);
-    
-    // Math functions and constants
-    window.PI = p.PI;
-    window.TWO_PI = p.TWO_PI;
-    window.HALF_PI = p.HALF_PI;
-    window.sin = (angle) => p.sin(angle);
-    window.cos = (angle) => p.cos(angle);
-    window.tan = (angle) => p.tan(angle);
-    window.map = (value, start1, stop1, start2, stop2) => p.map(value, start1, stop1, start2, stop2);
-    window.constrain = (n, low, high) => p.constrain(n, low, high);
-    window.dist = (x1, y1, x2, y2) => p.dist(x1, y1, x2, y2);
-    window.min = (...args) => p.min(...args);
-    window.max = (...args) => p.max(...args);
-    window.random = (...args) => p.random(...args);
-    
-    // Loop control
-    window.noLoop = () => p.noLoop();
-    window.loop = () => p.loop();
-    
-    // Text functions
-    window.text = (str, x, y) => p.text(str, x, y);
-    window.textAlign = (...args) => p.textAlign(...args);
-    window.textSize = (size) => p.textSize(size);
-    
-    // Color mode
-    window.colorMode = (...args) => p.colorMode(...args);
-    window.HSB = p.HSB;
-    window.RGB = p.RGB;
-    
-    // Constants
-    window.LEFT = p.LEFT;
-    window.RIGHT = p.RIGHT;
-    window.CENTER = p.CENTER;
-    window.TOP = p.TOP;
-    window.BOTTOM = p.BOTTOM;
+    try {
+      // Store p5 instance globally for direct access
+      window.currentP5 = p;
+      
+      // Variables - direct assignment for immediate access
+      window.mouseX = p.mouseX;
+      window.mouseY = p.mouseY;
+      window.pmouseX = p.pmouseX;
+      window.pmouseY = p.pmouseY;
+      window.width = p.width;
+      window.height = p.height;
+      window.frameCount = p.frameCount;
+      window.key = p.key;
+      window.keyCode = p.keyCode;
+      
+      // Drawing functions - direct assignment
+      window.background = p.background.bind(p);
+      window.fill = p.fill.bind(p);
+      window.noFill = p.noFill.bind(p);
+      window.stroke = p.stroke.bind(p);
+      window.noStroke = p.noStroke.bind(p);
+      window.strokeWeight = p.strokeWeight.bind(p);
+      
+      // Shape functions - direct assignment
+      window.circle = p.circle.bind(p);
+      window.ellipse = p.ellipse.bind(p);
+      window.rect = p.rect.bind(p);
+      window.square = p.square.bind(p);
+      window.line = p.line.bind(p);
+      window.point = p.point.bind(p);
+      window.triangle = p.triangle.bind(p);
+      
+      // Transform functions - direct assignment
+      window.push = p.push.bind(p);
+      window.pop = p.pop.bind(p);
+      window.translate = p.translate.bind(p);
+      window.rotate = p.rotate.bind(p);
+      window.scale = p.scale.bind(p);
+      
+      // Math functions and constants
+      window.PI = p.PI;
+      window.TWO_PI = p.TWO_PI;
+      window.HALF_PI = p.HALF_PI;
+      window.sin = p.sin.bind(p);
+      window.cos = p.cos.bind(p);
+      window.tan = p.tan.bind(p);
+      window.map = p.map.bind(p);
+      window.constrain = p.constrain.bind(p);
+      window.dist = p.dist.bind(p);
+      window.min = p.min.bind(p);
+      window.max = p.max.bind(p);
+      window.random = p.random.bind(p);
+      
+      // Loop control
+      window.noLoop = p.noLoop.bind(p);
+      window.loop = p.loop.bind(p);
+      
+      // Text functions
+      window.text = p.text.bind(p);
+      window.textAlign = p.textAlign.bind(p);
+      window.textSize = p.textSize.bind(p);
+      
+      // Color mode
+      window.colorMode = p.colorMode.bind(p);
+      window.HSB = p.HSB;
+      window.RGB = p.RGB;
+      
+      // Constants
+      window.LEFT = p.LEFT;
+      window.RIGHT = p.RIGHT;
+      window.CENTER = p.CENTER;
+      window.TOP = p.TOP;
+      window.BOTTOM = p.BOTTOM;
+      
+      // Canvas functions
+      window.createCanvas = p.createCanvas.bind(p);
+      window.resizeCanvas = p.resizeCanvas.bind(p);
+      
+      console.log("✅ p5.js functions exposed globally using direct assignment");
+    } catch (error) {
+      console.error("❌ Error exposing p5.js functions:", error);
+    }
   }
 
   // Switch to a specific project
@@ -160,10 +231,13 @@ class ProjectManager {
         // Make p5 functions and variables globally accessible
         this.exposeP5Globals(p);
         
-        // Call the project setup function
-        this.currentProject.setup();
-        this.isRunning = true;
-        console.log(`✅ Canvas created for ${this.currentProject.name}: ${width}x${height}`);
+        // Wait a bit for functions to be exposed
+        setTimeout(() => {
+          // Call the project setup function
+          this.currentProject.setup();
+          this.isRunning = true;
+          console.log(`✅ Canvas created for ${this.currentProject.name}: ${width}x${height}`);
+        }, 10);
       };
       
       p.draw = () => {
@@ -171,7 +245,12 @@ class ProjectManager {
           // Make p5 functions and variables globally accessible
           this.exposeP5Globals(p);
           
-          this.currentProject.draw();
+          // Only draw if functions are available
+          if (typeof window.background === 'function') {
+            this.currentProject.draw();
+          } else {
+            console.warn('⚠️ p5.js functions not available in draw loop');
+          }
         }
       };
 

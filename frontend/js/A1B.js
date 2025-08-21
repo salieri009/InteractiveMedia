@@ -8,16 +8,26 @@ let waveSpeed = 0.03;
 let bgColors = [];           
 let mixedColors = [];        
 
-function setup() {
-  createCanvas(800, 400);
+function setupA1B() {
+  console.log("🎨 A1B project setup started!");
+  
+  // Check if p5.js functions are available
+  if (typeof rectMode === 'undefined') {
+    console.error('❌ p5.js not loaded! rectMode function not available.');
+    return;
+  }
+  
+  // ProjectManager already creates the canvas, so we don't need to call createCanvas
   rectMode(CENTER);
   colorMode(RGB);
   noStroke();
   initBackground();
   initMixedColors();
+  
+  console.log("✅ A1B project initialized successfully!");
 }
 
-function draw() {
+function drawA1B() {
   drawQuarterBackground();
   drawCenterSquare();
   drawAnimatedShapes();
@@ -89,5 +99,27 @@ function drawAnimatedShapes() {
       rect(x, y, shapeSize, shapeSize);
     }
   }
+}
+
+// ===============================================
+// Project Registration
+// ===============================================
+
+// Register A1B project with project manager
+if (typeof projectManager !== 'undefined') {
+  console.log('📝 Registering A1B project...');
+  projectManager.registerProject(
+    'a1b',
+    'A1B - Animated Shapes',
+    setupA1B,
+    drawA1B,
+    {
+      description: 'An animated project with dynamic shapes and color transitions.',
+      canvasSize: { width: 800, height: 400 }
+    }
+  );
+  console.log('✅ A1B project registered successfully!');
+} else {
+  console.error('❌ ProjectManager not found! A1B project not registered.');
 }
 

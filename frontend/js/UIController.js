@@ -163,11 +163,15 @@ document.addEventListener('DOMContentLoaded', () => {
       // Replace with enhanced version
       window.uiController = enhancedController;
       
+      // Temporarily disable API calls to focus on p5.js issues
+      console.log('⚠️ API calls temporarily disabled to focus on p5.js issues');
+      /*
       // Initialize enhanced features
       enhancedController.loadProjectsFromAPI().catch(console.warn);
       enhancedController.loadAnalytics().catch(error => {
         console.warn('Analytics loading failed:', error);
       });
+      */
     }
   }, 200); // Increased delay to ensure all projects are registered
 });

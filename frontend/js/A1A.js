@@ -9,30 +9,46 @@ function setupA1A() {
   console.log("🎨 A1A project setup started!");
   
   // Check if p5.js functions are available
-  if (typeof createCanvas === 'undefined') {
-    console.error('❌ p5.js not loaded! createCanvas function not available.');
+  if (typeof window.background === 'undefined') {
+    console.error('❌ p5.js not loaded! background function not available.');
     return;
   }
   
+  // Additional check for other essential functions
+  if (typeof window.fill === 'undefined' || typeof window.stroke === 'undefined') {
+    console.error('❌ p5.js drawing functions not available!');
+    return;
+  }
+  
+  // ProjectManager already creates the canvas, so we don't need to call createCanvas
   console.log("✅ A1A project initialized successfully!");
 }
 
 function drawA1A() {
   // Check if p5.js functions are available
-  if (typeof background === 'undefined') {
+  if (typeof window.background === 'undefined') {
     console.error('❌ p5.js functions not available in drawA1A!');
     return;
   }
 
+  // Additional check for drawing functions
+  if (typeof window.fill === 'undefined' || typeof window.stroke === 'undefined') {
+    console.error('❌ p5.js drawing functions not available in drawA1A!');
+    return;
+  }
+
   // Clear background with light gray
-  background(220);
+  window.background(220);
   
   // Basic shapes demonstration
   drawBasicShapes();
   
   // Stop the draw loop after first frame (static image)
-  if (typeof noLoop === 'function') {
-    noLoop();
+  if (typeof window.noLoop === 'function') {
+    window.noLoop();
+    console.log("✅ A1A drawing completed, loop stopped");
+  } else {
+    console.log("⚠️ noLoop function not available");
   }
 }
 
@@ -42,27 +58,27 @@ function drawA1A() {
 
 function drawBasicShapes() {
   // Check if p5.js drawing functions are available
-  if (typeof stroke === 'undefined' || typeof fill === 'undefined') {
+  if (typeof window.stroke === 'undefined' || typeof window.fill === 'undefined') {
     console.error('❌ p5.js drawing functions not available!');
     return;
   }
 
   // Line from (0,0) to (100,100)
-  stroke(0);
-  strokeWeight(2);
-  line(0, 0, 100, 100);
+  window.stroke(0);
+  window.strokeWeight(2);
+  window.line(0, 0, 100, 100);
   
   // Square at (100,100) with size 50
-  fill(150, 200, 255);
-  square(100, 100, 50);
+  window.fill(150, 200, 255);
+  window.square(100, 100, 50);
   
   // Circle at (200,200) with diameter 25
-  fill(255, 150, 150);
-  circle(200, 200, 25);
+  window.fill(255, 150, 150);
+  window.circle(200, 200, 25);
   
   // Rectangle at (10,25) with width 50, height 50
-  fill(150, 255, 150);
-  rect(10, 25, 50, 50);
+  window.fill(150, 255, 150);
+  window.rect(10, 25, 50, 50);
 }
 
 // ===============================================
@@ -80,7 +96,7 @@ function mousePressedA1A() {
 
 function keyPressedA1A() {
   // Check if key is available
-  if (typeof key !== 'undefined') {
+  if (typeof key !== 'undefined' && key !== null) {
     console.log(`A1A - Key pressed: ${key}`);
   } else {
     console.log('A1A - Key pressed (key not available)');
