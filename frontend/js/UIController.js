@@ -36,6 +36,16 @@ class UIController {
       buttonContainer.appendChild(button);
       this.projectButtons.set(project.id, button);
     });
+
+    // Ensure A1B and A1C buttons exist even if scripts failed to load
+    const ensureButton = (id, name, scriptPath) => {
+      if (!this.projectButtons.has(id)) {
+        this.addLazyProjectButton(id, name, scriptPath);
+      }
+    };
+
+    ensureButton('a1b', 'A1B - Animated Shapes', 'js/A1B.js');
+    ensureButton('a1c', 'A1C - Pattern Generator', 'js/A1C.js');
   }
 
   // Switch project
@@ -127,6 +137,67 @@ class UIController {
     
     buttonContainer.appendChild(button);
     this.projectButtons.set(projectId, button);
+  }
+
+  // Add a button that lazy-loads the script when clicked
+  addLazyProjectButton(projectId, displayName, scriptPath) {
+    const buttonContainer = document.getElementById('project-buttons');
+    if (!buttonContainer) return;
+
+    const button = document.createElement('button');
+    button.className = 'project-btn';
+    button.textContent = displayName;
+
+    const onClick = async () => {
+      // If already registered, just switch
+      if (projectManager.projects.has(projectId)) {
+        this.switchProject(projectId);
+        return;
+      }
+
+      // Otherwise, try loading the script and then switch
+      button.disabled = true;
+      const original = button.textContent;
+      button.textContent = 'Loading...';
+      try {
+        await this.loadScript(scriptPath);
+        // Rebuild buttons in case registration just happened
+        this.createProjectButtons();
+        if (projectManager.projects.has(projectId)) {
+          this.switchProject(projectId);
+        } else {
+          console.warn(`Script loaded but project "${projectId}" not registered`);
+        }
+      } catch (e) {
+        console.error(`Failed to load ${scriptPath}`, e);
+        alert(`Failed to load ${displayName}. Check file path: ${scriptPath}`);
+      } finally {
+        button.disabled = false;
+        button.textContent = original;
+      }
+    };
+
+    button.onclick = onClick;
+    buttonContainer.appendChild(button);
+    this.projectButtons.set(projectId, button);
+  }
+
+  // Utility to load a script dynamically
+  loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const existing = Array.from(document.scripts).some(s => s.src.endsWith(src));
+      if (existing) {
+        resolve();
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = src;
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = (err) => reject(err);
+      document.body.appendChild(script);
+    });
   }
 }
 
