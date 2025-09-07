@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Interactive Media Assignment - Project Hub</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <!-- Inline SVG favicon to avoid external file 404s -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='100%25' height='100%25' fill='%23667eea'/%3E%3Ctext x='50%25' y='50%25' font-size='36' text-anchor='middle' dy='.35em' fill='white'%3EIM%3C/text%3E%3C/svg%3E" type="image/svg+xml">
   <link rel="stylesheet" href="./css/style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
 </head>
@@ -56,12 +57,12 @@
   </div>
 
   <!-- JavaScript Files - Load order is important -->
-  <script src="js/ProjectManager.js"></script>
-  <script src="js/UIController.js"></script>
-  <script src="js/APIClient.js"></script>
-  <script src="js/A1A.js"></script>
-  <script src="js/A1B.js"></script>
-  <script src="js/A1C.js"></script>
+  <script src="./js/ProjectManager.js"></script>
+  <script src="./js/UIController.js"></script>
+  <script src="./js/APIClient.js"></script>
+  <script src="./js/A1A.js"></script>
+  <script src="./js/A1B.js"></script>
+  <script src="./js/A1C.js"></script>
   <!-- Add new project files here -->
 </body>
 </html>

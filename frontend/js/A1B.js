@@ -119,6 +119,10 @@ if (typeof projectManager !== 'undefined') {
     }
   );
   console.log('✅ A1B project registered successfully!');
+  // If UI controller already initialized, add the button dynamically
+  if (typeof uiController !== 'undefined' && uiController.initialized) {
+    uiController.addProjectButton('a1b');
+  }
 } else {
   console.error('❌ ProjectManager not found! A1B project not registered.');
 }

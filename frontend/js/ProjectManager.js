@@ -94,24 +94,29 @@ class ProjectManager {
       // Store p5 instance globally for direct access
       window.currentP5 = p;
       
-      // Variables - direct assignment for immediate access
-      window.mouseX = p.mouseX;
-      window.mouseY = p.mouseY;
-      window.pmouseX = p.pmouseX;
-      window.pmouseY = p.pmouseY;
-      window.width = p.width;
-      window.height = p.height;
-      window.frameCount = p.frameCount;
-      window.key = p.key;
-      window.keyCode = p.keyCode;
+  // Variables - expose as getters so they always reflect the current p5 instance
+  Object.defineProperty(window, 'mouseX', { get: () => p.mouseX, configurable: true });
+  Object.defineProperty(window, 'mouseY', { get: () => p.mouseY, configurable: true });
+  Object.defineProperty(window, 'pmouseX', { get: () => p.pmouseX, configurable: true });
+  Object.defineProperty(window, 'pmouseY', { get: () => p.pmouseY, configurable: true });
+  Object.defineProperty(window, 'width', { get: () => p.width, configurable: true });
+  Object.defineProperty(window, 'height', { get: () => p.height, configurable: true });
+  Object.defineProperty(window, 'frameCount', { get: () => p.frameCount, configurable: true });
+  Object.defineProperty(window, 'key', { get: () => p.key, configurable: true });
+  Object.defineProperty(window, 'keyCode', { get: () => p.keyCode, configurable: true });
       
-      // Drawing functions - direct assignment
-      window.background = p.background.bind(p);
-      window.fill = p.fill.bind(p);
-      window.noFill = p.noFill.bind(p);
-      window.stroke = p.stroke.bind(p);
-      window.noStroke = p.noStroke.bind(p);
-      window.strokeWeight = p.strokeWeight.bind(p);
+  // Drawing functions - direct assignment
+  window.background = p.background.bind(p);
+  window.fill = p.fill.bind(p);
+  window.noFill = p.noFill.bind(p);
+  window.stroke = p.stroke.bind(p);
+  window.noStroke = p.noStroke.bind(p);
+  window.strokeWeight = p.strokeWeight.bind(p);
+  // Color functions
+  window.red = p.red.bind(p);
+  window.green = p.green.bind(p);
+  window.blue = p.blue.bind(p);
+  window.lerpColor = p.lerpColor.bind(p);
       
       // Shape functions - direct assignment
       window.circle = p.circle.bind(p);

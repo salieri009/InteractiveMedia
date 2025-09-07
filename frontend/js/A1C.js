@@ -338,6 +338,10 @@ if (typeof projectManager !== 'undefined') {
     }
   );
   console.log('✅ A1C project registered successfully!');
+  // Ensure UI buttons update if UI already initialized
+  if (typeof uiController !== 'undefined' && uiController.initialized) {
+    uiController.addProjectButton('a1c');
+  }
 } else {
   console.error('❌ ProjectManager not found! A1C project not registered.');
 }

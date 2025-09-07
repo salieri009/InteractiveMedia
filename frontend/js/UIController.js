@@ -44,8 +44,10 @@ class UIController {
       }
     };
 
-    ensureButton('a1b', 'A1B - Animated Shapes', 'js/A1B.js');
-    ensureButton('a1c', 'A1C - Pattern Generator', 'js/A1C.js');
+  ensureButton('a1b', 'A1B - Animated Shapes', 'js/A1B.js');
+  ensureButton('a1c', 'A1C - Pattern Generator', 'js/A1C.js');
+  // Ensure A1D exists as a lazy-load button (may be added later)
+  ensureButton('a1d', 'A1D - Simple Demo', 'js/A1D.js');
   }
 
   // Switch project
