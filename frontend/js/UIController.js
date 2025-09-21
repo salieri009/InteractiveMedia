@@ -44,10 +44,12 @@ class UIController {
       }
     };
 
-  ensureButton('a1b', 'A1B - Animated Shapes', 'js/A1B.js');
-  ensureButton('a1c', 'A1C - Pattern Generator', 'js/A1C.js');
-  // Ensure A1D exists as a lazy-load button (may be added later)
-  ensureButton('a1d', 'A1D - Simple Demo', 'js/A1D.js');
+   ensureButton('a1b', 'A1B - Animated Shapes', 'js/A1B.js');
+   ensureButton('a1c', 'A1C - Pattern Generator', 'js/A1C.js');
+   // Ensure A1D exists as a lazy-load button (may be added later)
+   ensureButton('a1d', 'A1D - Simple Demo', 'js/A1D.js');
+   // Ensure A1E exists as a lazy-load button
+   ensureButton('a1e', 'A1E - Sound-Painted Night Sky', 'js/A1E.js');
   }
 
   // Switch project
@@ -56,6 +58,8 @@ class UIController {
     if (success) {
       this.updateActiveButton(projectId);
       this.updateProjectInfo();
+      // Ensure buttons are still visible after project switch
+      this.ensureAllButtonsExist();
     }
     return success;
   }
@@ -200,6 +204,27 @@ class UIController {
       script.onerror = (err) => reject(err);
       document.body.appendChild(script);
     });
+  }
+
+  // Ensure all buttons exist after project switches
+  ensureAllButtonsExist() {
+    const buttonContainer = document.getElementById('project-buttons');
+    if (!buttonContainer) return;
+
+    // Check if buttons are missing and recreate them
+    const expectedButtons = ['a1a', 'a1b', 'a1c', 'a1d', 'a1e'];
+    let needsRecreation = false;
+
+    expectedButtons.forEach(id => {
+      if (!this.projectButtons.has(id)) {
+        needsRecreation = true;
+      }
+    });
+
+    if (needsRecreation) {
+      console.log('🔄 Recreating missing buttons...');
+      this.createProjectButtons();
+    }
   }
 }
 
