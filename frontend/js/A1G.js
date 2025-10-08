@@ -24,11 +24,25 @@ function setupA1G() {
   // Set color mode to HSB for better hue sorting
   colorMode(HSB, 360, 100, 100, 100);
   
-  // Create procedural image
-  createProceduralImage();
-  currentPixelColor = color(0);
-  sortedImg = img.get();
-  performPixelSort();
+  // Load external image
+  loadImage('../assets/images/GQuuuuuux.jpg', 
+    function(loadedImg) {
+      // Success callback
+      console.log("✅ Image loaded successfully!");
+      img = loadedImg;
+      currentPixelColor = color(0);
+      sortedImg = img.get();
+      performPixelSort();
+    },
+    function(error) {
+      // Error callback - fallback to procedural image
+      console.log("⚠️ Failed to load image, using procedural image instead");
+      createProceduralImage();
+      currentPixelColor = color(0);
+      sortedImg = img.get();
+      performPixelSort();
+    }
+  );
   
   console.log("✅ A1G project initialized successfully!");
 }
@@ -37,6 +51,16 @@ function drawA1G() {
   // Check if p5.js functions are available
   if (typeof background === 'undefined') {
     console.error('❌ p5.js functions not available in drawA1G!');
+    return;
+  }
+  
+  // Check if images are loaded
+  if (!img || !sortedImg) {
+    background(220, 20, 95);
+    fill(0, 0, 0);
+    textAlign(CENTER, CENTER);
+    textSize(16);
+    text("Loading image...", width/2, height/2);
     return;
   }
 
@@ -112,6 +136,7 @@ function drawA1G() {
 }
 
 function createProceduralImage() {
+  // Create procedural image
   img = createGraphics(400, 300);
   img.colorMode(HSB, 360, 100, 100, 100);
   img.background(0, 0, 100); // White background in HSB
@@ -273,6 +298,32 @@ function drawPixelSortUI(scale, offsetX, offsetY) {
 }
 
 // ----------------------------
+// Image Loading Functions
+// ----------------------------
+function loadExternalImage(imagePath) {
+  // Try to load external image
+  try {
+    loadImage(imagePath, 
+      (loadedImg) => {
+        console.log('🖼️ External image loaded successfully');
+        // Resize to fit our canvas
+        img = createGraphics(400, 300);
+        img.image(loadedImg, 0, 0, 400, 300);
+        sortedImg = img.get();
+        performPixelSort();
+      },
+      (error) => {
+        console.log('⚠️ Could not load external image, using procedural generation');
+        createProceduralImage();
+      }
+    );
+  } catch (error) {
+    console.log('⚠️ Error loading image, using procedural generation');
+    createProceduralImage();
+  }
+}
+
+// ----------------------------
 // Interaction Functions
 // ----------------------------
 function mousePressedA1G() {
@@ -304,6 +355,10 @@ function keyPressedA1G() {
     // Clear trail shapes
     trailShapes = [];
     console.log("🧹 Trail shapes cleared");
+  } else if (key === 'l' || key === 'L') {
+    // Load external image (이미지를 넣었을 때 사용)
+    loadExternalImage('./assets/images/sample-image.jpg');
+    console.log("📷 Attempting to load external image");
   }
 }
 
@@ -317,7 +372,7 @@ if (typeof projectManager !== 'undefined') {
     {
       mousePressed: mousePressedA1G,
       keyPressed: keyPressedA1G,
-      description: 'Interactive pixel sorting with color sampling. Move mouse over sorted image to sample colors, click and drag to paint. Use B/H to change sort mode, SPACE to toggle direction.',
+      description: 'Interactive pixel sorting with color sampling. Move mouse over sorted image to sample colors, click and drag to paint. Use B/H to change sort mode, SPACE to toggle direction, L to load external image.',
       canvasSize: { width: 800, height: 600 }
     }
   );

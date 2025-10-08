@@ -156,6 +156,11 @@ class ProjectManager {
       window.text = p.text.bind(p);
       window.textAlign = p.textAlign.bind(p);
       window.textSize = p.textSize.bind(p);
+      window.textStyle = p.textStyle.bind(p);
+      window.NORMAL = p.NORMAL;
+      window.ITALIC = p.ITALIC;
+      window.BOLD = p.BOLD;
+      window.BOLDITALIC = p.BOLDITALIC;
       
       // Color mode
       window.colorMode = p.colorMode.bind(p);
@@ -172,6 +177,33 @@ class ProjectManager {
       // Canvas functions
       window.createCanvas = p.createCanvas.bind(p);
       window.resizeCanvas = p.resizeCanvas.bind(p);
+      
+      // Graphics and image functions
+      window.createGraphics = p.createGraphics.bind(p);
+      window.image = p.image.bind(p);
+      window.loadImage = p.loadImage.bind(p);
+      window.color = p.color.bind(p);
+      window.hue = p.hue.bind(p);
+      window.saturation = p.saturation.bind(p);
+      window.brightness = p.brightness.bind(p);
+      window.alpha = p.alpha.bind(p);
+      
+      // DOM and input functions
+      window.createFileInput = p.createFileInput.bind(p);
+      window.createButton = p.createButton.bind(p);
+      window.createSlider = p.createSlider.bind(p);
+      window.createInput = p.createInput.bind(p);
+      
+      // Mouse and keyboard properties
+      Object.defineProperty(window, 'mouseIsPressed', { get: () => p.mouseIsPressed, configurable: true });
+      
+      // Math functions
+      window.floor = p.floor || Math.floor;
+      window.ceil = p.ceil || Math.ceil;
+      window.round = p.round || Math.round;
+      window.abs = p.abs || Math.abs;
+      window.sqrt = p.sqrt || Math.sqrt;
+      window.pow = p.pow || Math.pow;
       
       console.log("✅ p5.js functions exposed globally using direct assignment");
     } catch (error) {

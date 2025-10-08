@@ -50,6 +50,10 @@ class UIController {
    ensureButton('a1d', 'A1D - Simple Demo', 'js/A1D.js');
    // Ensure A1E exists as a lazy-load button
    ensureButton('a1e', 'A1E - Sound-Painted Night Sky', 'js/A1E.js');
+   // Ensure A1G exists as a lazy-load button
+   ensureButton('a1g', 'A1G - Interactive Pixel Sort', 'js/A1G.js');
+   // Ensure A1H exists as a lazy-load button
+   ensureButton('a1h', 'A1H - Corpus Comedian', 'js/A1H.js');
   }
 
   // Switch project
