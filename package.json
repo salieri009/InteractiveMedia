@@ -1,0 +1,41 @@
+{
+  "name": "interactive-media-monorepo",
+  "version": "1.0.0",
+  "description": "Interactive Media Assignment - Full-Stack Serverless Application",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "install": "npm workspaces foreach --parallel run install",
+    "dev": "npm workspaces foreach --parallel run dev",
+    "dev:frontend": "npm -w frontend run dev",
+    "dev:backend": "npm -w backend run dev",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "npm -w frontend run build",
+    "build:backend": "npm -w backend run build",
+    "test": "npm workspaces foreach --parallel run test",
+    "lint": "npm workspaces foreach --parallel run lint",
+    "clean": "npm workspaces foreach -- rm -rf node_modules dist build .next",
+    "deploy:local": "npm run build && echo '✅ Build complete. Ready for local testing.'",
+    "deploy:prod": "node scripts/deploy.js"
+  },
+  "keywords": [
+    "serverless",
+    "aws-sam",
+    "p5js",
+    "express",
+    "interactive-media",
+    "monorepo"
+  ],
+  "author": "UTS Student",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.1467.0"
+  }
+}

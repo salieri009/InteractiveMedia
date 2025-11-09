@@ -20,7 +20,7 @@ function setup() {
   }
 }
 
-function createBuilding(x) {
+function createBuilding(x) {d
   let w = random(30, 80);
   let h = random(80, 200);
   return {

@@ -1,45 +1,45 @@
 # Interactive Media Assignment - Development Notes
 
-## 📋 과제 진행 상황
+## 📋 Assignment Progress Status
 
-### ✅ 완료된 작업
-- [x] 프로젝트 디렉토리 구조 설정
-- [x] 기본 HTML/CSS/JS 파일 생성
-- [x] p5.js 기본 캔버스 설정
-- [x] 기본 도형 그리기 (선, 사각형, 원, 직사각형)
+### ✅ Completed Tasks
+- [x] Set up project directory structure
+- [x] Created basic HTML/CSS/JS files
+- [x] Set up basic p5.js canvas
+- [x] Basic shape drawing (lines, rectangles, circles, rectangles)
 
-### 🔄 진행 중인 작업
-- [ ] 인터랙티브 요소 추가
-- [ ] 애니메이션 효과 구현
-- [ ] 사용자 입력 처리
+### 🔄 Work in Progress
+- [ ] Add interactive elements
+- [ ] Implement animation effects
+- [ ] Handle user input
 
-### 📝 다음 할 일
-- [ ] 복잡한 그래픽 패턴 구현
-- [ ] 마우스/키보드 상호작용 추가
-- [ ] 사운드 요소 통합 (필요시)
-- [ ] 반응형 디자인 최적화
-- [ ] 코드 최적화 및 정리
+### 📝 Next Tasks
+- [ ] Implement complex graphic patterns
+- [ ] Add mouse/keyboard interactions
+- [ ] Integrate sound elements (if needed)
+- [ ] Optimize responsive design
+- [ ] Code optimization and cleanup
 
-## 🎯 과제 요구사항 체크리스트
-- [ ] 창의적인 비주얼 디자인
-- [ ] 사용자 상호작용
-- [ ] 코드 구조화 및 주석
-- [ ] 반응형 웹 디자인
-- [ ] 문서화
+## 🎯 Assignment Requirements Checklist
+- [ ] Creative visual design
+- [ ] User interaction
+- [ ] Code structuring and comments
+- [ ] Responsive web design
+- [ ] Documentation
 
-## 💡 아이디어 메모
-- 기하학적 패턴 애니메이션
-- 마우스 추적 인터랙션
-- 색상 변화 효과
-- 파티클 시스템
+## 💡 Idea Notes
+- Geometric pattern animation
+- Mouse tracking interaction
+- Color change effects
+- Particle system
 
-## 🐛 해결해야 할 문제들
-- (문제점들을 여기에 기록)
+## 🐛 Issues to Resolve
+- (Record problems here)
 
-## 📚 참고 자료
+## 📚 Reference Materials
 - [p5.js Reference](https://p5js.org/reference/)
-- [Interactive Media 강의 노트]
-- [UTS 과제 가이드라인]
+- [Interactive Media Lecture Notes]
+- [UTS Assignment Guidelines]
 
 ---
-*마지막 업데이트: 2025-08-09*
+*Last updated: 2025-08-09*

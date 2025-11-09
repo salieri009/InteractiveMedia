@@ -77,6 +77,7 @@ class ProjectManager {
       mousePressed: options.mousePressed || (() => {}),
       keyPressed: options.keyPressed || (() => {}),
       windowResized: options.windowResized || (() => {}),
+      cleanup: options.cleanup || null,
       description: options.description || "Project description",
       canvasSize: options.canvasSize || { width: 400, height: 400 }
     });
@@ -193,6 +194,15 @@ class ProjectManager {
       window.createButton = p.createButton.bind(p);
       window.createSlider = p.createSlider.bind(p);
       window.createInput = p.createInput.bind(p);
+      window.createCapture = p.createCapture.bind(p);
+      
+      // Save functions
+      window.saveCanvas = p.saveCanvas.bind(p);
+      window.save = p.save.bind(p);
+      
+      // Video and media constants
+      window.VIDEO = p.VIDEO;
+      window.AUDIO = p.AUDIO;
       
       // Mouse and keyboard properties
       Object.defineProperty(window, 'mouseIsPressed', { get: () => p.mouseIsPressed, configurable: true });
@@ -216,6 +226,16 @@ class ProjectManager {
     if (!this.projects.has(projectId)) {
       console.error(`❌ Project not found: ${projectId}`);
       return false;
+    }
+
+    // Call cleanup on current project if it exists
+    if (this.currentProject && this.currentProject.cleanup) {
+      console.log(`🧹 Cleaning up previous project: ${this.currentProject.name}`);
+      try {
+        this.currentProject.cleanup();
+      } catch (error) {
+        console.error('❌ Error during project cleanup:', error);
+      }
     }
 
     // Clean up existing canvas

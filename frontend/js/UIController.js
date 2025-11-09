@@ -54,6 +54,10 @@ class UIController {
    ensureButton('a1g', 'A1G - Interactive Pixel Sort', 'js/A1G.js');
    // Ensure A1H exists as a lazy-load button
    ensureButton('a1h', 'A1H - Corpus Comedian', 'js/A1H.js');
+   // Ensure A1I exists as a lazy-load button
+   ensureButton('a1i', 'A1I - The Observant Shopper', 'js/A1I.js');
+   // Ensure A1J exists as a lazy-load button
+   ensureButton('a1j', 'A1J - Dungeon Tile Painter', 'js/A1J.js');
   }
 
   // Switch project
@@ -216,7 +220,7 @@ class UIController {
     if (!buttonContainer) return;
 
     // Check if buttons are missing and recreate them
-    const expectedButtons = ['a1a', 'a1b', 'a1c', 'a1d', 'a1e'];
+    const expectedButtons = ['a1a', 'a1b', 'a1c', 'a1d', 'a1e', 'a1g', 'a1h', 'a1i', 'a1j'];
     let needsRecreation = false;
 
     expectedButtons.forEach(id => {

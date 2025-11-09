@@ -4,25 +4,25 @@
 
 A comprehensive full-stack web application featuring p5.js frontend and Node.js Express backend with AWS cloud deployment capabilities.
 
-## 🌟 핵심 기능
+## 🌟 Key Features
 
 ### 🎮 Multi-Project Management
-- **동적 프로젝트 전환** - 버튼으로 프로젝트 간 전환
-- **독립적인 프로젝트 환경** - 각 프로젝트가 독립적으로 실행
-- **실시간 캔버스 업데이트** - 프로젝트 간 매끄러운 전환
-- **프로젝트 템플릿 시스템** - 새 프로젝트 쉬운 생성
+- **Dynamic Project Switching** - Switch between projects with buttons
+- **Independent Project Environments** - Each project runs independently
+- **Real-time Canvas Updates** - Smooth transitions between projects
+- **Project Template System** - Easy creation of new projects
 
-### 🌐 클라우드 준비 백엔드
-- **서버리스 API** - AWS Lambda 기반 Express.js 백엔드
-- **분석 추적** - 조회수, 좋아요, 사용자 참여도 추적
-- **오프라인 지원** - 인터넷 없이도 작동
-- **실시간 동기화** - 온라인 시 데이터 동기화
+### 🌐 Cloud-Ready Backend
+- **Serverless API** - AWS Lambda-based Express.js backend
+- **Analytics Tracking** - Track views, likes, and user engagement
+- **Offline Support** - Works without internet connection
+- **Real-time Synchronization** - Data sync when online
 
-### 📱 모던 UI/UX
-- **반응형 디자인** - 데스크톱, 태블릿, 모바일 지원
-- **애니메이션 전환** - 부드러운 UI 애니메이션
-- **실시간 알림** - 상태 업데이트 및 피드백
-- **전체화면 지원** - 몰입형 캔버스 경험
+### 📱 Modern UI/UX
+- **Responsive Design** - Supports desktop, tablet, and mobile
+- **Animated Transitions** - Smooth UI animations
+- **Real-time Notifications** - Status updates and feedback
+- **Fullscreen Support** - Immersive canvas experience
 
 ## 🗂️ Project Structure
 
@@ -53,7 +53,11 @@ A comprehensive full-stack web application featuring p5.js frontend and Node.js 
 │   ├── netlify.toml             # Netlify deployment config
 │   └── deploy.sh                # Automated deployment script
 ├── 📁 docs/                      # Documentation
-│   └── progress.md               # Assignment progress tracking
+│   ├── index.md                  # Documentation index
+│   ├── design_plans/             # Project design plans
+│   ├── project_docs/             # Project management docs
+│   ├── progress.md               # Assignment progress tracking
+│   └── bug-fixes-summary.md      # Bug fixes history
 ├── 📁 backup/                    # Version backups
 ├── 📄 DEPLOYMENT.md              # Cloud deployment guide
 └── 📄 README.md                  # This file
@@ -217,7 +221,7 @@ chmod +x backend/deploy.sh
 - Graceful API fallbacks
 - Local data persistence
 
-## � Development Tools
+## 🛠️ Development Tools
 
 ### **Scripts:**
 ```bash
@@ -232,7 +236,7 @@ npm run deploy     # Deploy to production
 - Prettier - Code formatting
 - ES6 Snippets - JavaScript productivity
 
-## � Analytics & Insights
+## 📊 Analytics & Insights
 
 ### **Real-time Metrics:**
 - Project view counts
@@ -285,6 +289,11 @@ MIT License - Build amazing things! 🚀
 
 ## 🆘 Support & Resources
 
+- **📚 Documentation:** [docs/index.md](docs/index.md) - Complete project documentation
+- **� Design Plans:** [docs/design_plans/](docs/design_plans/) - Technical specifications
+- **📋 Project Docs:** [docs/project_docs/](docs/project_docs/) - Management and setup guides
+- **📈 Progress:** [docs/progress.md](docs/progress.md) - Development tracking
+- **🐛 Bug Fixes:** [docs/bug-fixes-summary.md](docs/bug-fixes-summary.md) - Issue resolution history
 - **p5.js Reference:** https://p5js.org/reference/
 - **MDN Web Docs:** https://developer.mozilla.org/
 - **Vercel Docs:** https://vercel.com/docs
