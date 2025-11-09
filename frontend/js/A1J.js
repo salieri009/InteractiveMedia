@@ -1,14 +1,27 @@
-// A1J - Dungeon Tile Painter & Player
+/**
+ * A1J - Dungeon Tile Painter & Player
+ * 
+ * Architecture: Model-View-Controller (MVC)
+ * - GameModel: Manages game state, logic, and data
+ * - GameView: Handles all rendering using p5.js
+ * - GameController: Orchestrates input handling and updates
+ */
 
-// === CONFIG ===
-const GRID_W = 20;
-const GRID_H = 14;
-const TILE_SIZE = 40;
-const PALETTE_H = 80;
-const NUM_TREASURES = 5;
+// ============================================================================
+// CONFIGURATION & CONSTANTS
+// ============================================================================
 
-// === TILE TYPES ===
-const TILES = {
+const A1J_CONFIG = {
+  GRID_WIDTH: 20,
+  GRID_HEIGHT: 14,
+  TILE_SIZE: 40,
+  PALETTE_HEIGHT: 80,
+  NUM_TREASURES: 5,
+  MOVE_DELAY: 10,
+  WIN_TIMER_MAX: 180
+};
+
+const TILE_TYPES = {
   FLOOR: 0,
   WALL: 1,
   WATER: 2,
@@ -16,385 +29,625 @@ const TILES = {
   SPAWN: 4
 };
 
-// === STATE ===
-let a1j_grid = [];
-let a1j_mode = 'editor'; // 'editor' or 'play'
-let a1j_selectedTile = TILES.FLOOR;
-let a1j_player = { x: 0, y: 0 };
-let a1j_treasureCount = 0;
-let a1j_totalTreasures = NUM_TREASURES;
-let a1j_waterCooldown = 0;
-let a1j_gameWon = false;
-let a1j_winTimer = 0;
-let a1j_moveCooldown = 0;
-const a1j_moveDelay = 10; // frames between moves when key held or to prevent repeats
+// ============================================================================
+// GAME MODEL - Manages all game state and business logic
+// ============================================================================
 
-function setupA1J() {
-  resizeCanvas(GRID_W * TILE_SIZE, GRID_H * TILE_SIZE + PALETTE_H);
-  
-  // Initialize grid
-  a1j_grid = [];
-  for (let y = 0; y < GRID_H; y++) {
-    a1j_grid[y] = [];
-    for (let x = 0; x < GRID_W; x++) {
-      a1j_grid[y][x] = TILES.FLOOR;
-    }
-  }
-  
-  // Set spawn
-  a1j_grid[0][0] = TILES.SPAWN;
-  a1j_player = { x: 0, y: 0 };
-  a1j_treasureCount = 0;
-  a1j_waterCooldown = 0;
-  a1j_gameWon = false;
-  a1j_winTimer = 0;
-  a1j_moveCooldown = 0;
-}
-
-function drawA1J() {
-  background(40);
-  
-  // Decrease move cooldown
-  if (a1j_moveCooldown > 0) a1j_moveCooldown--;
-  
-  if (a1j_mode === 'editor') {
-    a1j_drawEditor();
-  } else {
-    a1j_drawPlay();
-  }
-  
-  a1j_drawPalette();
-  a1j_drawUI();
-  
-  
-  
-  // Handle win state
-  if (a1j_gameWon) {
-    a1j_drawWinScreen();
-    a1j_winTimer++;
-    if (a1j_winTimer > 180) { // 3 seconds at 60fps
-      a1j_mode = 'editor';
-      a1j_gameWon = false;
-      a1j_winTimer = 0;
-    }
-  }
-}
-
-function a1j_drawEditor() {
-  // Draw grid
-  for (let y = 0; y < GRID_H; y++) {
-    for (let x = 0; x < GRID_W; x++) {
-      a1j_drawTile(x, y, a1j_grid[y][x]);
-    }
-  }
-  
-  // Paint on mouse drag
-  if (mouseIsPressed && mouseY < GRID_H * TILE_SIZE) {
-    let gx = floor(mouseX / TILE_SIZE);
-    let gy = floor(mouseY / TILE_SIZE);
-    if (gx >= 0 && gx < GRID_W && gy >= 0 && gy < GRID_H) {
-      a1j_grid[gy][gx] = a1j_selectedTile;
-    }
-  }
-}
-
-function a1j_drawPlay() {
-  // Draw grid
-  for (let y = 0; y < GRID_H; y++) {
-    for (let x = 0; x < GRID_W; x++) {
-      a1j_drawTile(x, y, a1j_grid[y][x]);
-    }
-  }
-  
-  // Draw player
-  push();
-  fill(255, 100, 200);
-  noStroke();
-  circle(a1j_player.x * TILE_SIZE + TILE_SIZE / 2, 
-         a1j_player.y * TILE_SIZE + TILE_SIZE / 2, 
-         TILE_SIZE * 0.7);
-  pop();
-}
-
-function a1j_drawTile(x, y, type) {
-  let px = x * TILE_SIZE;
-  let py = y * TILE_SIZE;
-  
-  push();
-  strokeWeight(1);
-  stroke(60);
-  
-  switch(type) {
-    case TILES.FLOOR:
-      fill(200, 200, 200);
-      rect(px, py, TILE_SIZE, TILE_SIZE);
-      break;
-    case TILES.WALL:
-      fill(50, 50, 50);
-      rect(px, py, TILE_SIZE, TILE_SIZE);
-      break;
-    case TILES.WATER:
-      fill(50, 100, 200);
-      rect(px, py, TILE_SIZE, TILE_SIZE);
-      break;
-    case TILES.TREASURE:
-      fill(200, 200, 200);
-      rect(px, py, TILE_SIZE, TILE_SIZE);
-      fill(255, 220, 0);
-      noStroke();
-      circle(px + TILE_SIZE / 2, py + TILE_SIZE / 2, TILE_SIZE * 0.5);
-      break;
-    case TILES.SPAWN:
-      fill(200, 200, 200);
-      rect(px, py, TILE_SIZE, TILE_SIZE);
-      fill(0, 255, 100);
-      noStroke();
-      circle(px + TILE_SIZE / 2, py + TILE_SIZE / 2, TILE_SIZE * 0.3);
-      break;
-  }
-  pop();
-}
-
-function a1j_drawPalette() {
-  let py = GRID_H * TILE_SIZE;
-  
-  // Background
-  push();
-  fill(30, 30, 40);
-  noStroke();
-  rect(0, py, width, PALETTE_H);
-  pop();
-  
-  // Tile buttons (Treasure removed in editor mode)
-  let tiles = [
-    { type: TILES.FLOOR, name: 'Floor', color: [200, 200, 200] },
-    { type: TILES.WALL, name: 'Wall', color: [50, 50, 50] },
-    { type: TILES.WATER, name: 'Water', color: [50, 100, 200] },
-    { type: TILES.SPAWN, name: 'Spawn', color: [0, 255, 100] }
-  ];
-  
-  for (let i = 0; i < tiles.length; i++) {
-    let x = 20 + i * 140;
-    let y = py + 20;
-    let w = 120;
-    let h = 50;
+/**
+ * GameModel encapsulates all game state and business logic.
+ * It is completely independent of p5.js and rendering concerns.
+ */
+class GameModel {
+  constructor(config) {
+    this.config = config;
+    this.grid = [];
+    this.mode = 'editor'; // 'editor' or 'play'
+    this.selectedTile = TILE_TYPES.FLOOR;
+    this.player = { x: 0, y: 0 };
+    this.treasureCount = 0;
+    this.totalTreasures = config.NUM_TREASURES;
+    this.waterCooldown = 0;
+    this.gameWon = false;
+    this.winTimer = 0;
+    this.moveCooldown = 0;
     
-    push();
-    if (a1j_mode === 'editor' && a1j_selectedTile === tiles[i].type) {
-      strokeWeight(3);
-      stroke(255, 255, 0);
+    this.initializeGrid();
+  }
+
+  /**
+   * Initialize the grid with all floor tiles and a spawn point.
+   */
+  initializeGrid() {
+    this.grid = [];
+    for (let y = 0; y < this.config.GRID_HEIGHT; y++) {
+      this.grid[y] = [];
+      for (let x = 0; x < this.config.GRID_WIDTH; x++) {
+        this.grid[y][x] = TILE_TYPES.FLOOR;
+      }
+    }
+    this.grid[0][0] = TILE_TYPES.SPAWN;
+    this.player = { x: 0, y: 0 };
+    this.treasureCount = 0;
+    this.waterCooldown = 0;
+    this.gameWon = false;
+    this.winTimer = 0;
+    this.moveCooldown = 0;
+  }
+
+  /**
+   * Reset for a new game session (keeping the editor map).
+   */
+  resetForPlay() {
+    // Clear all treasures
+    for (let y = 0; y < this.config.GRID_HEIGHT; y++) {
+      for (let x = 0; x < this.config.GRID_WIDTH; x++) {
+        if (this.grid[y][x] === TILE_TYPES.TREASURE) {
+          this.grid[y][x] = TILE_TYPES.FLOOR;
+        }
+      }
+    }
+
+    // Generate random treasures on floor tiles
+    let treasuresPlaced = 0;
+    let attempts = 0;
+    while (treasuresPlaced < this.config.NUM_TREASURES && attempts < 1000) {
+      let x = floor(random(this.config.GRID_WIDTH));
+      let y = floor(random(this.config.GRID_HEIGHT));
+      
+      if (this.grid[y][x] === TILE_TYPES.FLOOR) {
+        this.grid[y][x] = TILE_TYPES.TREASURE;
+        treasuresPlaced++;
+      }
+      attempts++;
+    }
+
+    // Find spawn point and place player there
+    let found = false;
+    for (let y = 0; y < this.config.GRID_HEIGHT; y++) {
+      for (let x = 0; x < this.config.GRID_WIDTH; x++) {
+        if (this.grid[y][x] === TILE_TYPES.SPAWN) {
+          this.player = { x, y };
+          found = true;
+          break;
+        }
+      }
+      if (found) break;
+    }
+    if (!found) this.player = { x: 0, y: 0 };
+
+    // Reset game state
+    this.treasureCount = 0;
+    this.totalTreasures = treasuresPlaced;
+    this.waterCooldown = 0;
+    this.moveCooldown = 0;
+    this.gameWon = false;
+    this.winTimer = 0;
+    this.mode = 'play';
+
+    console.log(`🎮 Play mode started! ${treasuresPlaced} treasures placed.`);
+  }
+
+  /**
+   * Attempt to move the player by (dx, dy).
+   * Returns true if move was successful, false otherwise.
+   */
+  movePlayer(dx, dy) {
+    // If water cooldown is active, consume it and prevent movement
+    if (this.waterCooldown > 0) {
+      this.waterCooldown--;
+      return false;
+    }
+
+    // If move cooldown is active, prevent movement
+    if (this.moveCooldown > 0) {
+      return false;
+    }
+
+    const newX = this.player.x + dx;
+    const newY = this.player.y + dy;
+
+    // Check bounds
+    if (newX < 0 || newX >= this.config.GRID_WIDTH ||
+        newY < 0 || newY >= this.config.GRID_HEIGHT) {
+      return false;
+    }
+
+    const tile = this.grid[newY][newX];
+
+    // Check collision with walls
+    if (tile === TILE_TYPES.WALL) {
+      return false;
+    }
+
+    // Movement is valid — update player position
+    this.player.x = newX;
+    this.player.y = newY;
+
+    // Apply move cooldown
+    this.moveCooldown = this.config.MOVE_DELAY;
+
+    // Handle tile interactions
+    if (tile === TILE_TYPES.TREASURE) {
+      this.grid[newY][newX] = TILE_TYPES.FLOOR;
+      this.treasureCount++;
+      if (this.treasureCount >= this.totalTreasures) {
+        this.gameWon = true;
+        this.winTimer = 0;
+      }
+    }
+
+    if (tile === TILE_TYPES.WATER) {
+      this.waterCooldown = 1; // Skip next key press
+    }
+
+    return true;
+  }
+
+  /**
+   * Place a tile at the given position in editor mode.
+   */
+  placeTile(x, y, tileType) {
+    if (x >= 0 && x < this.config.GRID_WIDTH &&
+        y >= 0 && y < this.config.GRID_HEIGHT) {
+      this.grid[y][x] = tileType;
+    }
+  }
+
+  /**
+   * Select a tile type for painting.
+   */
+  selectTile(tileType) {
+    this.selectedTile = tileType;
+  }
+
+  /**
+   * Switch between editor and play modes.
+   */
+  switchMode(newMode) {
+    this.mode = newMode;
+  }
+
+  /**
+   * Update game state (e.g., decrement cooldowns).
+   */
+  update() {
+    if (this.moveCooldown > 0) this.moveCooldown--;
+    if (this.gameWon) this.winTimer++;
+  }
+
+  /**
+   * Public getters for accessing state (read-only for the view).
+   */
+  getGrid() { return this.grid; }
+  getMode() { return this.mode; }
+  getPlayer() { return this.player; }
+  getTreasureProgress() { return { current: this.treasureCount, total: this.totalTreasures }; }
+  isGameWon() { return this.gameWon; }
+  getWinTimer() { return this.winTimer; }
+  getSelectedTile() { return this.selectedTile; }
+
+  /**
+   * Persistence: Save to localStorage
+   */
+  save() {
+    localStorage.setItem('a1j_tilemap', JSON.stringify(this.grid));
+    console.log('✅ Map saved to localStorage');
+  }
+
+  /**
+   * Persistence: Load from localStorage
+   */
+  load() {
+    const data = localStorage.getItem('a1j_tilemap');
+    if (data) {
+      this.grid = JSON.parse(data);
+      console.log('✅ Map loaded from localStorage');
+    }
+  }
+
+  /**
+   * Export: Download map as JSON file
+   */
+  download() {
+    const json = JSON.stringify(this.grid, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'tilemap.json';
+    a.click();
+    console.log('✅ Map downloaded as tilemap.json');
+  }
+}
+
+// ============================================================================
+// GAME VIEW - Handles all rendering with p5.js
+// ============================================================================
+
+/**
+ * GameView is responsible for rendering the game state.
+ * It reads from the GameModel and uses p5.js to draw everything.
+ */
+class GameView {
+  constructor(model, config) {
+    this.model = model;
+    this.config = config;
+  }
+
+  /**
+   * Main render method called each frame.
+   */
+  render() {
+    background(40);
+
+    if (this.model.getMode() === 'editor') {
+      this.renderEditor();
     } else {
-      strokeWeight(1);
-      stroke(100);
+      this.renderPlay();
     }
-    fill(tiles[i].color);
-    rect(x, y, w, h);
-    
+
+    this.renderPalette();
+    this.renderUI();
+
+    if (this.model.isGameWon()) {
+      this.renderWinScreen();
+    }
+  }
+
+  /**
+   * Render the editor view with the full grid.
+   */
+  renderEditor() {
+    const grid = this.model.getGrid();
+    for (let y = 0; y < this.config.GRID_HEIGHT; y++) {
+      for (let x = 0; x < this.config.GRID_WIDTH; x++) {
+        this.renderTile(x, y, grid[y][x]);
+      }
+    }
+  }
+
+  /**
+   * Render the play view with grid and player.
+   */
+  renderPlay() {
+    const grid = this.model.getGrid();
+    for (let y = 0; y < this.config.GRID_HEIGHT; y++) {
+      for (let x = 0; x < this.config.GRID_WIDTH; x++) {
+        this.renderTile(x, y, grid[y][x]);
+      }
+    }
+
+    this.renderPlayer();
+  }
+
+  /**
+   * Render a single tile.
+   */
+  renderTile(x, y, type) {
+    const px = x * this.config.TILE_SIZE;
+    const py = y * this.config.TILE_SIZE;
+
+    push();
+    strokeWeight(1);
+    stroke(60);
+
+    switch (type) {
+      case TILE_TYPES.FLOOR:
+        fill(200, 200, 200);
+        rect(px, py, this.config.TILE_SIZE, this.config.TILE_SIZE);
+        break;
+      case TILE_TYPES.WALL:
+        fill(50, 50, 50);
+        rect(px, py, this.config.TILE_SIZE, this.config.TILE_SIZE);
+        break;
+      case TILE_TYPES.WATER:
+        fill(50, 100, 200);
+        rect(px, py, this.config.TILE_SIZE, this.config.TILE_SIZE);
+        break;
+      case TILE_TYPES.TREASURE:
+        fill(200, 200, 200);
+        rect(px, py, this.config.TILE_SIZE, this.config.TILE_SIZE);
+        fill(255, 220, 0);
+        noStroke();
+        circle(px + this.config.TILE_SIZE / 2, 
+               py + this.config.TILE_SIZE / 2, 
+               this.config.TILE_SIZE * 0.5);
+        break;
+      case TILE_TYPES.SPAWN:
+        fill(200, 200, 200);
+        rect(px, py, this.config.TILE_SIZE, this.config.TILE_SIZE);
+        fill(0, 255, 100);
+        noStroke();
+        circle(px + this.config.TILE_SIZE / 2, 
+               py + this.config.TILE_SIZE / 2, 
+               this.config.TILE_SIZE * 0.3);
+        break;
+    }
+    pop();
+  }
+
+  /**
+   * Render the player character.
+   */
+  renderPlayer() {
+    const player = this.model.getPlayer();
+    const px = player.x * this.config.TILE_SIZE + this.config.TILE_SIZE / 2;
+    const py = player.y * this.config.TILE_SIZE + this.config.TILE_SIZE / 2;
+
+    push();
+    fill(255, 100, 200);
+    noStroke();
+    circle(px, py, this.config.TILE_SIZE * 0.7);
+    pop();
+  }
+
+  /**
+   * Render the tile selection palette.
+   */
+  renderPalette() {
+    const py = this.config.GRID_HEIGHT * this.config.TILE_SIZE;
+
+    // Background
+    push();
+    fill(30, 30, 40);
+    noStroke();
+    rect(0, py, width, this.config.PALETTE_HEIGHT);
+    pop();
+
+    // Tile buttons
+    const tileOptions = [
+      { type: TILE_TYPES.FLOOR, name: 'Floor', color: [200, 200, 200] },
+      { type: TILE_TYPES.WALL, name: 'Wall', color: [50, 50, 50] },
+      { type: TILE_TYPES.WATER, name: 'Water', color: [50, 100, 200] },
+      { type: TILE_TYPES.SPAWN, name: 'Spawn', color: [0, 255, 100] }
+    ];
+
+    for (let i = 0; i < tileOptions.length; i++) {
+      const x = 20 + i * 140;
+      const y = py + 20;
+      const w = 120;
+      const h = 50;
+
+      push();
+      if (this.model.getMode() === 'editor' && 
+          this.model.getSelectedTile() === tileOptions[i].type) {
+        strokeWeight(3);
+        stroke(255, 255, 0);
+      } else {
+        strokeWeight(1);
+        stroke(100);
+      }
+      fill(tileOptions[i].color);
+      rect(x, y, w, h);
+
+      fill(255);
+      noStroke();
+      textAlign(CENTER, CENTER);
+      textSize(12);
+      text(tileOptions[i].name, x + w / 2, y + h / 2);
+      pop();
+    }
+  }
+
+  /**
+   * Render the UI text (mode info and instructions).
+   */
+  renderUI() {
+    const py = this.config.GRID_HEIGHT * this.config.TILE_SIZE;
+
+    push();
     fill(255);
     noStroke();
+    textAlign(LEFT, TOP);
+    textSize(14);
+
+    if (this.model.getMode() === 'editor') {
+      text('EDITOR MODE | P: Play | S: Save | L: Load | D: Download', 10, py + 5);
+    } else {
+      const progress = this.model.getTreasureProgress();
+      text(`PLAY MODE | WASD: Move | Treasures: ${progress.current}/${progress.total}`, 10, py + 5);
+    }
+    pop();
+  }
+
+  /**
+   * Render the win screen overlay.
+   */
+  renderWinScreen() {
+    push();
+    fill(0, 0, 0, 200);
+    noStroke();
+    rect(0, 0, width, this.config.GRID_HEIGHT * this.config.TILE_SIZE);
+
+    fill(255, 220, 0);
     textAlign(CENTER, CENTER);
-    textSize(12);
-    text(tiles[i].name, x + w / 2, y + h / 2);
+    textSize(48);
+    text('🎉 YOU WIN! 🎉', width / 2, 
+         (this.config.GRID_HEIGHT * this.config.TILE_SIZE) / 2);
+
+    textSize(24);
+    fill(255);
+    text('Returning to editor...', width / 2, 
+         (this.config.GRID_HEIGHT * this.config.TILE_SIZE) / 2 + 60);
     pop();
   }
 }
 
-function a1j_drawUI() {
-  let py = GRID_H * TILE_SIZE;
-  
-  push();
-  fill(255);
-  noStroke();
-  textAlign(LEFT, TOP);
-  textSize(14);
-  
-  if (a1j_mode === 'editor') {
-    text('EDITOR MODE | P: Play | S: Save | L: Load | D: Download', 10, py + 5);
-  } else {
-    text(`PLAY MODE | WASD: Move | Treasures: ${a1j_treasureCount}/${a1j_totalTreasures}`, 10, py + 5);
-  }
-  pop();
-}
+// ============================================================================
+// GAME CONTROLLER - Orchestrates input and updates
+// ============================================================================
 
-function a1j_drawWinScreen() {
-  push();
-  fill(0, 0, 0, 200);
-  noStroke();
-  rect(0, 0, width, GRID_H * TILE_SIZE);
-  
-  fill(255, 220, 0);
-  textAlign(CENTER, CENTER);
-  textSize(48);
-  text('🎉 YOU WIN! 🎉', width / 2, (GRID_H * TILE_SIZE) / 2);
-  
-  textSize(24);
-  fill(255);
-  text('Returning to editor...', width / 2, (GRID_H * TILE_SIZE) / 2 + 60);
-  pop();
-}
+/**
+ * GameController handles user input and coordinates the Model and View.
+ * It bridges p5.js events with the game logic.
+ */
+class GameController {
+  constructor(model, view, config) {
+    this.model = model;
+    this.view = view;
+    this.config = config;
+  }
 
-function keyPressedA1J() {
-  // P key: Start play mode
-  if (key === 'p' || key === 'P') {
-    if (a1j_mode === 'editor') {
-      a1j_startPlay();
-    }
-    return;
+  /**
+   * Update the game state (called once per frame).
+   */
+  update() {
+    this.model.update();
+    this.view.render();
   }
-  
-  // Editor controls
-  if (a1j_mode === 'editor') {
-    if (key === 's' || key === 'S') a1j_save();
-    if (key === 'l' || key === 'L') a1j_load();
-    if (key === 'd' || key === 'D') a1j_download();
-    return; // Prevent fall-through to play controls
-  }
-  
-  // Play controls - single-step per keypress
-  if (a1j_mode === 'play' && !a1j_gameWon) {
-    // If water cooldown active, consume one press and skip movement
-    if (a1j_waterCooldown > 0) {
-      a1j_waterCooldown--;
+
+  /**
+   * Handle keyboard input.
+   */
+  handleKeyPressed(key) {
+    // P key: Toggle play mode
+    if (key === 'p' || key === 'P') {
+      if (this.model.getMode() === 'editor') {
+        this.model.resetForPlay();
+      }
       return;
     }
 
-    // Prevent rapid repeated moves; only allow if cooldown is zero
-    if (a1j_moveCooldown > 0) return;
+    // Editor controls
+    if (this.model.getMode() === 'editor') {
+      if (key === 's' || key === 'S') {
+        this.model.save();
+      }
+      if (key === 'l' || key === 'L') {
+        this.model.load();
+      }
+      if (key === 'd' || key === 'D') {
+        this.model.download();
+      }
+      return;
+    }
 
-    let newX = a1j_player.x;
-    let newY = a1j_player.y;
-    let moved = false;
-
-    if (key === 'w' || key === 'W') { newY--; moved = true; }
-    else if (key === 's' || key === 'S') { newY++; moved = true; }
-    else if (key === 'a' || key === 'A') { newX--; moved = true; }
-    else if (key === 'd' || key === 'D') { newX++; moved = true; }
-
-    if (!moved) return;
-
-    // Check bounds
-    if (newX < 0 || newX >= GRID_W || newY < 0 || newY >= GRID_H) return;
-
-    // Check collision
-    let tile = a1j_grid[newY][newX];
-    if (tile === TILES.WALL) return;
-
-    // Movement is valid — perform it
-    a1j_player.x = newX;
-    a1j_player.y = newY;
-
-    // Set move cooldown so holding a key doesn't teleport the player
-    a1j_moveCooldown = a1j_moveDelay;
-
-    // Interactions
-    if (tile === TILES.TREASURE) {
-      a1j_grid[newY][newX] = TILES.FLOOR;
-      a1j_treasureCount++;
-      if (a1j_treasureCount >= a1j_totalTreasures) {
-        a1j_gameWon = true;
-        a1j_winTimer = 0;
+    // Play controls - WASD movement
+    if (this.model.getMode() === 'play' && !this.model.isGameWon()) {
+      if (key === 'w' || key === 'W') {
+        this.model.movePlayer(0, -1);
+      } else if (key === 's' || key === 'S') {
+        this.model.movePlayer(0, 1);
+      } else if (key === 'a' || key === 'A') {
+        this.model.movePlayer(-1, 0);
+      } else if (key === 'd' || key === 'D') {
+        this.model.movePlayer(1, 0);
       }
     }
+  }
 
-    if (tile === TILES.WATER) {
-      a1j_waterCooldown = 1; // Skip next key press
+  /**
+   * Handle mouse input.
+   */
+  handleMousePressed(mx, my) {
+    if (this.model.getMode() !== 'editor') return;
+
+    const gameGridHeight = this.config.GRID_HEIGHT * this.config.TILE_SIZE;
+    const paletteY = gameGridHeight;
+
+    // Check if click is in the game grid area (painting)
+    if (my < gameGridHeight) {
+      const gx = floor(mx / this.config.TILE_SIZE);
+      const gy = floor(my / this.config.TILE_SIZE);
+      this.model.placeTile(gx, gy, this.model.getSelectedTile());
+      return;
+    }
+
+    // Check if click is in the palette area (tile selection)
+    if (my > paletteY && my < paletteY + this.config.PALETTE_HEIGHT) {
+      const tileOptions = [
+        TILE_TYPES.FLOOR,
+        TILE_TYPES.WALL,
+        TILE_TYPES.WATER,
+        TILE_TYPES.SPAWN
+      ];
+
+      for (let i = 0; i < tileOptions.length; i++) {
+        const x = 20 + i * 140;
+        const y = paletteY + 20;
+        const w = 120;
+        const h = 50;
+
+        if (mx > x && mx < x + w && my > y && my < y + h) {
+          this.model.selectTile(tileOptions[i]);
+          return;
+        }
+      }
     }
   }
+
+  /**
+   * Handle mouse dragging for continuous painting in editor.
+   */
+  handleMouseDrag(mx, my) {
+    if (this.model.getMode() !== 'editor') return;
+
+    const gameGridHeight = this.config.GRID_HEIGHT * this.config.TILE_SIZE;
+    if (my < gameGridHeight) {
+      const gx = floor(mx / this.config.TILE_SIZE);
+      const gy = floor(my / this.config.TILE_SIZE);
+      this.model.placeTile(gx, gy, this.model.getSelectedTile());
+    }
+  }
+}
+
+// ============================================================================
+// p5.js SKETCH INTEGRATION
+// ============================================================================
+
+// Global instances
+let a1j_gameModel;
+let a1j_gameView;
+let a1j_gameController;
+
+function setupA1J() {
+  resizeCanvas(
+    A1J_CONFIG.GRID_WIDTH * A1J_CONFIG.TILE_SIZE,
+    A1J_CONFIG.GRID_HEIGHT * A1J_CONFIG.TILE_SIZE + A1J_CONFIG.PALETTE_HEIGHT
+  );
+
+  // Instantiate MVC components
+  a1j_gameModel = new GameModel(A1J_CONFIG);
+  a1j_gameView = new GameView(a1j_gameModel, A1J_CONFIG);
+  a1j_gameController = new GameController(a1j_gameModel, a1j_gameView, A1J_CONFIG);
+}
+
+function drawA1J() {
+  a1j_gameController.update();
+
+  // Handle win state transition (auto-return to editor after 3 seconds)
+  if (a1j_gameModel.isGameWon() && a1j_gameModel.getWinTimer() > A1J_CONFIG.WIN_TIMER_MAX) {
+    a1j_gameModel.switchMode('editor');
+  }
+}
+
+function keyPressedA1J() {
+  a1j_gameController.handleKeyPressed(key);
 }
 
 function mousePressedA1J() {
-  if (a1j_mode !== 'editor') return;
-  
-  let py = GRID_H * TILE_SIZE;
-  
-  // Check palette clicks
-  if (mouseY > py && mouseY < py + PALETTE_H) {
-    let tiles = [TILES.FLOOR, TILES.WALL, TILES.WATER, TILES.SPAWN];
-    for (let i = 0; i < tiles.length; i++) {
-      let x = 20 + i * 140;
-      let y = py + 20;
-      if (mouseX > x && mouseX < x + 120 && mouseY > y && mouseY < y + 50) {
-        a1j_selectedTile = tiles[i];
-      }
-    }
+  a1j_gameController.handleMousePressed(mouseX, mouseY);
+}
+
+// p5.js global draw loop will handle mouse dragging
+// but we can optionally add support by checking mouseIsPressed
+function drawA1J_handleDrag() {
+  if (mouseIsPressed) {
+    a1j_gameController.handleMouseDrag(mouseX, mouseY);
   }
 }
 
-function a1j_startPlay() {
-  // Clear all existing treasures
-  for (let y = 0; y < GRID_H; y++) {
-    for (let x = 0; x < GRID_W; x++) {
-      if (a1j_grid[y][x] === TILES.TREASURE) {
-        a1j_grid[y][x] = TILES.FLOOR;
-      }
-    }
-  }
-  
-  // Generate random treasures
-  let treasuresPlaced = 0;
-  let attempts = 0;
-  while (treasuresPlaced < NUM_TREASURES && attempts < 1000) {
-    let x = floor(random(GRID_W));
-    let y = floor(random(GRID_H));
-    
-    // Only place on floor tiles
-    if (a1j_grid[y][x] === TILES.FLOOR) {
-      a1j_grid[y][x] = TILES.TREASURE;
-      treasuresPlaced++;
-    }
-    attempts++;
-  }
-  
-  // Find spawn point
-  let found = false;
-  for (let y = 0; y < GRID_H; y++) {
-    for (let x = 0; x < GRID_W; x++) {
-      if (a1j_grid[y][x] === TILES.SPAWN) {
-        a1j_player = { x: x, y: y };
-        found = true;
-        break;
-      }
-    }
-    if (found) break;
-  }
-  if (!found) a1j_player = { x: 0, y: 0 };
-  
-  a1j_treasureCount = 0;
-  a1j_totalTreasures = treasuresPlaced;
-  a1j_waterCooldown = 0;
-  a1j_moveCooldown = 0;
-  a1j_gameWon = false;
-  a1j_winTimer = 0;
-  a1j_mode = 'play';
-  
-  console.log(`🎮 Play mode started! ${treasuresPlaced} treasures placed.`);
+// Update draw function to include drag handling
+const originalDrawA1J = drawA1J;
+function drawA1J() {
+  originalDrawA1J();
+  drawA1J_handleDrag();
 }
 
-function a1j_save() {
-  localStorage.setItem('a1j_tilemap', JSON.stringify(a1j_grid));
-  console.log('✅ Map saved to localStorage');
-}
+// ============================================================================
+// PROJECT MANAGER REGISTRATION
+// ============================================================================
 
-function a1j_load() {
-  let data = localStorage.getItem('a1j_tilemap');
-  if (data) {
-    a1j_grid = JSON.parse(data);
-    console.log('✅ Map loaded from localStorage');
-  }
-}
-
-function a1j_download() {
-  let json = JSON.stringify(a1j_grid, null, 2);
-  let blob = new Blob([json], { type: 'application/json' });
-  let url = URL.createObjectURL(blob);
-  let a = document.createElement('a');
-  a.href = url;
-  a.download = 'tilemap.json';
-  a.click();
-  console.log('✅ Map downloaded as tilemap.json');
-}
-
-// Register the project
 if (typeof projectManager !== 'undefined') {
   projectManager.registerProject('a1j', 'A1J - Dungeon Tile Painter', setupA1J, drawA1J, {
     keyPressed: keyPressedA1J,
