@@ -1,12 +1,13 @@
 ![header](https://capsule-render.vercel.app/api?type=rect&color=0:667eea,100:764ba2&height=200&text=Interactive%20Media%202025&fontSize=60&fontColor=ffffff&animation=fadeIn&desc=UTS%20Semester%202%20-%20Creative%20Coding%20Projects&descSize=20&descAlignY=70)
 
-# 🎨 Interactive Media Assignment - Complete Project Hub
+# 🎨 Interactive Media Assignment 
+# - Complete Project Hub
 
 **UTS 2025 Semester 2 - Interactive Media Assignment Collections**
 
 A comprehensive full-stack web application featuring p5.js frontend and Node.js Express backend with AWS cloud deployment capabilities.
 
-## 🌟 Key Features
+## 🌟 Key Features   
 
 ### 🎮 Multi-Project Management
 - **Dynamic Project Switching** - Switch between projects with buttons
