@@ -8,9 +8,9 @@
 
 <div align="center">
 
-[![English](https://img.shields.io/badge/English-🇺🇸-blue?style=flat-square)](README.en.md)
-[![日本語](https://img.shields.io/badge/日本語-🇯🇵-red?style=flat-square)](README.ja.md)
-[![한국어](https://img.shields.io/badge/한국어-🇰🇷-green?style=flat-square)](README.ko.md)
+[![English](https://img.shields.io/badge/English-🇺🇸-blue?style=flat-square&logoColor=white)](../README.en.md) ← Current language
+[![日本語](https://img.shields.io/badge/日本語-🇯🇵-red?style=flat-square)](../README.ja.md)
+[![한국어](https://img.shields.io/badge/한국어-🇰🇷-green?style=flat-square)](../README.ko.md)
 
 </div>
 
@@ -128,3 +128,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 ![footer](https://capsule-render.vercel.app/api?type=wave&color=0:667eea,100:764ba2&height=150&section=footer&fontSize=50&fontColor=ffffff&animation=twinkling&text=Built%20with%20❤️%20using%20p5.js&desc=UTS%20Interactive%20Media%202025&descSize=18&fontAlign=50)
 
 </div>
+
