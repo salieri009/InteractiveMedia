@@ -22,10 +22,23 @@ let a1i_lastLabels = new Set();
 
 function setupA1I() {
   console.log("🛒 Setting up A1I");
-  resizeCanvas(800, 500);
-  colorMode(RGB, 255);
   
-  a1i_colors = { bg: color(20, 20, 40), list: color(30, 30, 50), accent: color(0, 255, 100) };
+  // Check if p5.js functions are available
+  if (typeof window.resizeCanvas === 'undefined') {
+    console.error('❌ p5.js not loaded! resizeCanvas function not available.');
+    return;
+  }
+  
+  // Additional check for other essential functions
+  if (typeof window.fill === 'undefined' || typeof window.stroke === 'undefined') {
+    console.error('❌ p5.js drawing functions not available!');
+    return;
+  }
+  
+  window.resizeCanvas(800, 500);
+  window.colorMode(window.RGB, 255);
+  
+  a1i_colors = { bg: window.color(20, 20, 40), list: window.color(30, 30, 50), accent: window.color(0, 255, 100) };
   a1i_detections = [];
   a1i_list.clear();
   a1i_listArr = [];
@@ -35,7 +48,7 @@ function setupA1I() {
   a1i_lastLabels.clear();
 
   try {
-    a1i_video = createCapture(VIDEO, () => { a1i_ready.video = true; console.log("✅ Video ready"); });
+    a1i_video = window.createCapture(window.VIDEO, () => { a1i_ready.video = true; console.log("✅ Video ready"); });
     a1i_video.size(640, 500);
     a1i_video.hide();
   } catch (e) { console.error("❌ Video error:", e); }
@@ -96,13 +109,19 @@ function a1i_gotResults(error, results) {
 }
 
 function drawA1I() {
-  background(20, 20, 40);
-  if (a1i_ready.video) image(a1i_video, 0, 0, 640, 500);
+  // Check if p5.js functions are available
+  if (typeof window.background === 'undefined') {
+    console.error('❌ p5.js functions not available in drawA1I!');
+    return;
+  }
+
+  window.background(20, 20, 40);
+  if (a1i_ready.video) window.image(a1i_video, 0, 0, 640, 500);
   else {
-    fill(255);
-    textAlign(CENTER, CENTER);
-    textSize(24);
-    text("📹 Initializing...", 320, 250);
+    window.fill(255);
+    window.textAlign(window.CENTER, window.CENTER);
+    window.textSize(24);
+    window.text("📹 Initializing...", 320, 250);
   }
 
   // 시간의 잔상 그리기
@@ -118,65 +137,65 @@ function drawA1I() {
 }
 
 function a1i_drawBox(obj) {
-  push();
-  noFill();
-  strokeWeight(3);
-  stroke(0, 255, 100);
-  rect(obj.x, obj.y, obj.width, obj.height);
-  noStroke();
-  fill(0, 255, 100);
-  textSize(16);
-  textAlign(LEFT, BOTTOM);
-  text(`${obj.label} (${Math.round(obj.confidence * 100)}%)`, obj.x + 5, obj.y - 5);
-  pop();
+  window.push();
+  window.noFill();
+  window.strokeWeight(3);
+  window.stroke(0, 255, 100);
+  window.rect(obj.x, obj.y, obj.width, obj.height);
+  window.noStroke();
+  window.fill(0, 255, 100);
+  window.textSize(16);
+  window.textAlign(window.LEFT, window.BOTTOM);
+  window.text(`${obj.label} (${Math.round(obj.confidence * 100)}%)`, obj.x + 5, obj.y - 5);
+  window.pop();
 }
 
 function a1i_drawList() {
-  push();
-  noStroke();
-  fill(30, 30, 50);
-  rect(640, 0, 160, 500);
-  fill(240);
-  textSize(20);
-  textAlign(LEFT, TOP);
-  text("🛒 List", 660, 20);
-  stroke(0, 255, 100);
-  strokeWeight(2);
-  line(660, 45, 790, 45);
-  noStroke();
-  textSize(18);
+  window.push();
+  window.noStroke();
+  window.fill(30, 30, 50);
+  window.rect(640, 0, 160, 500);
+  window.fill(240);
+  window.textSize(20);
+  window.textAlign(window.LEFT, window.TOP);
+  window.text("🛒 List", 660, 20);
+  window.stroke(0, 255, 100);
+  window.strokeWeight(2);
+  window.line(660, 45, 790, 45);
+  window.noStroke();
+  window.textSize(18);
   let y = 60;
   for (let i = 0; i < a1i_listArr.length; i++) {
-    if (y > 480) { fill(150); text("...", 660, y); break; }
-    fill(255);
-    text(`${i + 1}. ${a1i_listArr[i]}`, 660, y);
+    if (y > 480) { window.fill(150); window.text("...", 660, y); break; }
+    window.fill(255);
+    window.text(`${i + 1}. ${a1i_listArr[i]}`, 660, y);
     y += 22;
   }
   if (a1i_listArr.length > 0) {
-    fill(150);
-    textSize(14);
-    textAlign(RIGHT, BOTTOM);
-    text(`Total: ${a1i_listArr.length}`, 790, 490);
+    window.fill(150);
+    window.textSize(14);
+    window.textAlign(window.RIGHT, window.BOTTOM);
+    window.text(`Total: ${a1i_listArr.length}`, 790, 490);
   }
-  pop();
+  window.pop();
 }
 
 function a1i_drawStatus() {
-  push();
+  window.push();
   let ok = a1i_ready.model && a1i_ready.video;
-  if (ok) fill(0, 255, 100);
-  else fill(255, 200, 0);
-  noStroke();
-  circle(10, 10, 12);
-  fill(255);
-  textSize(12);
-  textAlign(LEFT, TOP);
-  text(ok ? "● DETECTING" : "● LOADING...", 25, 4);
-  fill(255, 200);
-  textSize(14);
-  textAlign(RIGHT, TOP);
-  text(`Preset: ${a1i_preset.name} (P)`, 790, 10);
-  pop();
+  if (ok) window.fill(0, 255, 100);
+  else window.fill(255, 200, 0);
+  window.noStroke();
+  window.circle(10, 10, 12);
+  window.fill(255);
+  window.textSize(12);
+  window.textAlign(window.LEFT, window.TOP);
+  window.text(ok ? "● DETECTING" : "● LOADING...", 25, 4);
+  window.fill(255, 200);
+  window.textSize(14);
+  window.textAlign(window.RIGHT, window.TOP);
+  window.text(`Preset: ${a1i_preset.name} (P)`, 790, 10);
+  window.pop();
 }
 
 function a1i_applyPreset() {
@@ -191,23 +210,29 @@ function a1i_applyPreset() {
 }
 
 function keyPressedA1I() {
-  if (key === 's' || key === 'S') saveCanvas(`observant-shopper-${a1i_preset.name}`, 'png');
-  if (key === 'c' || key === 'C') { 
-    a1i_list.clear(); 
-    a1i_listArr = []; 
-    a1i_lastLabels.clear();
-    a1i_echoes = [];
-    a1i_explosions = [];
+  if (typeof key !== 'undefined' && (key === 's' || key === 'S')) {
+    if (typeof window.saveCanvas === 'function') {
+      window.saveCanvas(`observant-shopper-${a1i_preset.name}`, 'png');
+    }
   }
-  if (key === 'r' || key === 'R') { a1i_ready.detecting = false; setTimeout(() => a1i_startDetection(), 100); }
-  if (key === 'e' || key === 'E') {
-    // E키: 현재 감지된 모든 물체에서 폭발 효과
-    for (let obj of a1i_detections) a1i_createExplosion(obj);
-  }
-  if (key === 'p' || key === 'P') {
-    a1i_presetIdx = (a1i_presetIdx + 1) % 3;
-    a1i_applyPreset();
-    console.log(`Preset: ${a1i_preset.name}`);
+  if (typeof key !== 'undefined') {
+    if (key === 'c' || key === 'C') { 
+      a1i_list.clear(); 
+      a1i_listArr = []; 
+      a1i_lastLabels.clear();
+      a1i_echoes = [];
+      a1i_explosions = [];
+    }
+    if (key === 'r' || key === 'R') { a1i_ready.detecting = false; setTimeout(() => a1i_startDetection(), 100); }
+    if (key === 'e' || key === 'E') {
+      // E키: 현재 감지된 모든 물체에서 폭발 효과
+      for (let obj of a1i_detections) a1i_createExplosion(obj);
+    }
+    if (key === 'p' || key === 'P') {
+      a1i_presetIdx = (a1i_presetIdx + 1) % 3;
+      a1i_applyPreset();
+      console.log(`Preset: ${a1i_preset.name}`);
+    }
   }
 }
 
@@ -226,18 +251,18 @@ function cleanupA1I() {
 
 // === 시간의 잔상 (Time Echoes) ===
 function a1i_drawEchoes() {
-  push();
+  window.push();
   for (let i = 0; i < a1i_echoes.length; i++) {
-    let alpha = map(i, 0, a1i_echoes.length - 1, 30, 150);
-    let thickness = map(i, 0, a1i_echoes.length - 1, 1, 3);
+    let alpha = window.map(i, 0, a1i_echoes.length - 1, 30, 150);
+    let thickness = window.map(i, 0, a1i_echoes.length - 1, 1, 3);
     for (let obj of a1i_echoes[i]) {
-      noFill();
-      stroke(0, 255, 100, alpha);
-      strokeWeight(thickness);
-      rect(obj.x, obj.y, obj.width, obj.height);
+      window.noFill();
+      window.stroke(0, 255, 100, alpha);
+      window.strokeWeight(thickness);
+      window.rect(obj.x, obj.y, obj.width, obj.height);
     }
   }
-  pop();
+  window.pop();
 }
 
 // === 픽셀 폭발 (Pixel Explosion) ===
@@ -247,28 +272,28 @@ function a1i_createExplosion(obj) {
   let numPixels = 20;
   
   for (let i = 0; i < numPixels; i++) {
-    let angle = random(TWO_PI);
-    let speed = random(2, 6);
-    let size = random(5, 15);
-    let hue = random(100, 255);
+    let angle = window.random(window.TWO_PI);
+    let speed = window.random(2, 6);
+    let size = window.random(5, 15);
+    let hue = window.random(100, 255);
     
     a1i_explosions.push({
       x: centerX,
       y: centerY,
-      vx: cos(angle) * speed,
-      vy: sin(angle) * speed,
+      vx: window.cos(angle) * speed,
+      vy: window.sin(angle) * speed,
       size: size,
       life: 60,
       maxLife: 60,
-      rotation: random(TWO_PI),
-      rotSpeed: random(-0.2, 0.2),
+      rotation: window.random(window.TWO_PI),
+      rotSpeed: window.random(-0.2, 0.2),
       color: [hue, 255, 100]
     });
   }
 }
 
 function a1i_updateExplosions() {
-  push();
+  window.push();
   for (let i = a1i_explosions.length - 1; i >= 0; i--) {
     let p = a1i_explosions[i];
     
@@ -281,19 +306,19 @@ function a1i_updateExplosions() {
     p.life--;
     
     // 그리기
-    let alpha = map(p.life, 0, p.maxLife, 0, 255);
-    push();
-    translate(p.x, p.y);
-    rotate(p.rotation);
-    noStroke();
-    fill(p.color[0], p.color[1], p.color[2], alpha);
-    rect(-p.size/2, -p.size/2, p.size, p.size);
-    pop();
+    let alpha = window.map(p.life, 0, p.maxLife, 0, 255);
+    window.push();
+    window.translate(p.x, p.y);
+    window.rotate(p.rotation);
+    window.noStroke();
+    window.fill(p.color[0], p.color[1], p.color[2], alpha);
+    window.rect(-p.size/2, -p.size/2, p.size, p.size);
+    window.pop();
     
     // 제거
     if (p.life <= 0) a1i_explosions.splice(i, 1);
   }
-  pop();
+  window.pop();
 }
 
 if (typeof projectManager !== 'undefined') {

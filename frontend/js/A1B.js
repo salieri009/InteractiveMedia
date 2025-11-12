@@ -12,15 +12,21 @@ function setupA1B() {
   console.log("🎨 A1B project setup started!");
   
   // Check if p5.js functions are available
-  if (typeof rectMode === 'undefined') {
+  if (typeof window.rectMode === 'undefined') {
     console.error('❌ p5.js not loaded! rectMode function not available.');
     return;
   }
   
+  // Additional check for other essential functions
+  if (typeof window.fill === 'undefined' || typeof window.stroke === 'undefined') {
+    console.error('❌ p5.js drawing functions not available!');
+    return;
+  }
+  
   // ProjectManager already creates the canvas, so we don't need to call createCanvas
-  rectMode(CENTER);
-  colorMode(RGB);
-  noStroke();
+  window.rectMode(window.CENTER);
+  window.colorMode(window.RGB);
+  window.noStroke();
   initBackground();
   initMixedColors();
   
@@ -34,52 +40,111 @@ function drawA1B() {
 }
 
 function initBackground() {
+  // Store RGB values directly instead of p5.Color objects to avoid color parsing issues
   bgColors = [
-    color(100, 200, 200),
-    color(200, 255, 200),
-    color(200, 200, 255),
-    color(255, 255, 200)
+    { r: 100, g: 200, b: 200 },
+    { r: 200, g: 255, b: 200 },
+    { r: 200, g: 200, b: 255 },
+    { r: 255, g: 255, b: 200 }
   ];
 }
 
 function complementaryColor(c) {
-  let r = 255 - red(c);
-  let g = 255 - green(c);
-  let b = 255 - blue(c);
-  return color(r, g, b);
+  let r = 255 - window.red(c);
+  let g = 255 - window.green(c);
+  let b = 255 - window.blue(c);
+  return window.color(r, g, b);
 }
 
 function drawQuarterBackground() {
+  // Check if bgColors is initialized
+  if (!bgColors || bgColors.length === 0) {
+    initBackground();
+  }
+  
   let w = width / 2;
   let h = height / 2;
   for (let i = 0; i < 4; i++) {
-    let r = red(bgColors[i]) + 20 * sin(frameCount * 0.005 + i);
-    let g = green(bgColors[i]) + 20 * cos(frameCount * 0.006 + i);
-    let b = blue(bgColors[i]) + 20 * sin(frameCount * 0.007 - i);
-    fill(constrain(r, 0, 255), constrain(g, 0, 255), constrain(b, 0, 255));
+    // Use RGB values directly from bgColors array
+    let baseColor = bgColors[i];
+    if (!baseColor) {
+      baseColor = { r: 200, g: 200, b: 200 }; // Fallback color
+    }
+    
+    let r = baseColor.r + 20 * window.sin(frameCount * 0.005 + i);
+    let g = baseColor.g + 20 * window.cos(frameCount * 0.006 + i);
+    let b = baseColor.b + 20 * window.sin(frameCount * 0.007 - i);
+    window.fill(window.constrain(r, 0, 255), window.constrain(g, 0, 255), window.constrain(b, 0, 255));
 
     let x = (i % 2 === 0) ? w / 2 : w + w / 2;
     let y = (i < 2) ? h / 2 : h + h / 2;
-    rect(x, y, w, h);
+    window.rect(x, y, w, h);
   }
 }
 
 function initMixedColors() {
-  mixedColors = [
-    color(255, 0, 0),
-    color(0, 0, 255)
-  ];
+  // Check if p5.js color function is available before creating colors
+  if (typeof window.color === 'function') {
+    try {
+      mixedColors = [
+        window.color(255, 0, 0),
+        window.color(0, 0, 255)
+      ];
+    } catch (e) {
+      console.warn('⚠️ Failed to create mixed colors, using fallback:', e);
+      // Fallback: store as RGB values
+      mixedColors = [
+        { r: 255, g: 0, b: 0 },
+        { r: 0, g: 0, b: 255 }
+      ];
+    }
+  } else {
+    // Fallback: store as RGB values
+    mixedColors = [
+      { r: 255, g: 0, b: 0 },
+      { r: 0, g: 0, b: 255 }
+    ];
+  }
 }
 
 function getMixedColor() {
-  let t1 = (sin(frameCount * 0.02) + 1) / 2;
-  let t2 = (cos(frameCount * 0.015) + 1) / 2;
-  return lerpColor(mixedColors[0], mixedColors[1], (t1 + t2) / 2);
+  // Check if mixedColors is initialized
+  if (!mixedColors || mixedColors.length < 2) {
+    initMixedColors();
+  }
+  
+  // If mixedColors contains RGB objects instead of p5.Color objects
+  if (mixedColors[0] && typeof mixedColors[0] === 'object' && 'r' in mixedColors[0]) {
+    let t1 = (window.sin(frameCount * 0.02) + 1) / 2;
+    let t2 = (window.cos(frameCount * 0.015) + 1) / 2;
+    let t = (t1 + t2) / 2;
+    
+    // Manual lerp for RGB values (lerp = linear interpolation)
+    let r = mixedColors[0].r + (mixedColors[1].r - mixedColors[0].r) * t;
+    let g = mixedColors[0].g + (mixedColors[1].g - mixedColors[0].g) * t;
+    let b = mixedColors[0].b + (mixedColors[1].b - mixedColors[0].b) * t;
+    return window.color(r, g, b);
+  }
+  
+  // Use p5.js lerpColor if we have p5.Color objects
+  if (typeof window.lerpColor === 'function') {
+    try {
+      let t1 = (window.sin(frameCount * 0.02) + 1) / 2;
+      let t2 = (window.cos(frameCount * 0.015) + 1) / 2;
+      return window.lerpColor(mixedColors[0], mixedColors[1], (t1 + t2) / 2);
+    } catch (e) {
+      console.warn('⚠️ lerpColor failed, using fallback:', e);
+      return window.color(200, 200, 200);
+    }
+  }
+  
+  // Final fallback
+  return window.color(200, 200, 200);
 }
 
 function drawCenterSquare() {
-  fill(getMixedColor());
-  rect(width / 2, height / 2, centerSquareSize, centerSquareSize);
+  window.fill(getMixedColor());
+  window.rect(width / 2, height / 2, centerSquareSize, centerSquareSize);
 }
 
 function drawAnimatedShapes() {
@@ -88,15 +153,15 @@ function drawAnimatedShapes() {
 
     let factor = 1 + i * 0.1;
     let y = height / 2 + 
-            abs(pow(noise(i * 0.1, frameCount * 0.01 * factor) * 2 - 1, 1.5)) * waveAmplitude * (i % 2 === 0 ? 1 : -1);
+            window.abs(window.pow(window.noise(i * 0.1, frameCount * 0.01 * factor) * 2 - 1, 1.5)) * waveAmplitude * (i % 2 === 0 ? 1 : -1);
 
-    let c = lerpColor(getMixedColor(), color(255, 255, 255), i / numShapes);
-    fill(c);
+    let c = window.lerpColor(getMixedColor(), window.color(255, 255, 255), i / numShapes);
+    window.fill(c);
 
     if (shapeType === "ellipse") {
-      ellipse(x, y, shapeSize, shapeSize);
+      window.ellipse(x, y, shapeSize, shapeSize);
     } else {
-      rect(x, y, shapeSize, shapeSize);
+      window.rect(x, y, shapeSize, shapeSize);
     }
   }
 }

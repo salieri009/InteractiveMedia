@@ -33,14 +33,44 @@ class APIClient {
     return 'http://localhost:3001'; // Server-side fallback
   }
 
-  // Generic fetch wrapper with error handling
+  /**
+   * Generic fetch wrapper with error handling and timeout support.
+   * 
+   * @param {string} endpoint - API endpoint path (without '/api' prefix)
+   * @param {Object} [options={}] - Fetch options (method, body, headers, etc.)
+   * @returns {Promise<Object>} Response data as JSON
+   * 
+   * @description Makes HTTP requests to the backend API with proper error
+   *              handling, timeout support, and CORS handling. Automatically
+   *              adds '/api' prefix to endpoints.
+   * 
+   * @throws {Error} If request fails or times out
+   * 
+   * @example
+   * const data = await apiClient.request('/projects', { method: 'GET' });
+   */
   async request(endpoint, options = {}) {
+    // Input validation
+    if (!endpoint || typeof endpoint !== 'string') {
+      throw new Error('Invalid endpoint provided');
+    }
+    
+    // Ensure endpoint starts with '/'
+    if (!endpoint.startsWith('/')) {
+      endpoint = '/' + endpoint;
+    }
+    
     try {
       const url = `${this.baseURL}/api${endpoint}`;
-      console.log(`Making API request to: ${url}`);
+      console.log(`🌐 Making API request to: ${url}`);
+      
+      // Create AbortController for timeout handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), this.timeout);
       
       const response = await fetch(url, {
         ...options,
+        signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
           ...options.headers
@@ -49,18 +79,28 @@ class APIClient {
         mode: 'cors'
       });
       
+      // Clear timeout if request completes
+      clearTimeout(timeoutId);
+      
       if (!response.ok) {
         throw new Error(`API returned status: ${response.status}`);
       }
       
       return await response.json();
     } catch (error) {
-      console.log(`API Request failed: ${error.message}`);
+      // Handle timeout
+      if (error.name === 'AbortError') {
+        console.warn(`⏱️ API request timed out after ${this.timeout}ms`);
+        throw new Error(`Request timeout: ${endpoint}`);
+      }
       
-      // Check if it's a CORS error
+      console.log(`❌ API Request failed: ${error.message}`);
+      
+      // Check if it's a CORS or network error
       if (error.message.includes('Failed to fetch') || 
-          error.message.includes('CORS')) {
-        console.log('CORS error detected. Using fallback data.');
+          error.message.includes('CORS') ||
+          error.message.includes('NetworkError')) {
+        console.log('🌐 Network/CORS error detected. Using fallback data.');
         
         // Return appropriate fallback data based on the endpoint
         if (endpoint.includes('/projects')) {
@@ -106,10 +146,24 @@ class APIClient {
     });
   }
 
-  // Analytics
+  /**
+   * Gets analytics data from the API.
+   * 
+   * @returns {Promise<Object>} Analytics data object
+   * 
+   * @description Fetches analytics data from the backend API.
+   *              Falls back to default data if the request fails.
+   * 
+   * @bugfix Fixed double '/api' path issue - request() already adds '/api'
+   * 
+   * @example
+   * const analytics = await apiClient.getAnalytics();
+   * console.log(analytics.totalViews);
+   */
   async getAnalytics() {
     try {
-      return await this.request('/api/analytics');
+      // BUGFIX: Removed '/api' prefix - request() method already adds it
+      return await this.request('/analytics');
     } catch (error) {
       console.log('Using fallback analytics data');
       return this.fallbackData.analytics;

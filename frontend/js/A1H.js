@@ -38,11 +38,17 @@ class Particle {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.vx = random(-2, 2);
-    this.vy = random(-3, -1);
+    this.vx = window.random(-2, 2);
+    this.vy = window.random(-3, -1);
     this.alpha = 255;
-    this.size = random(3, 8);
-    this.color = color(random(200, 255), random(150, 255), random(100, 200));
+    this.size = window.random(3, 8);
+    
+    // Store RGB values directly to avoid color parsing issues
+    this.color = {
+      r: window.random(200, 255),
+      g: window.random(150, 255),
+      b: window.random(100, 200)
+    };
   }
 
   update() {
@@ -53,11 +59,12 @@ class Particle {
   }
 
   display() {
-    push();
-    noStroke();
-    fill(red(this.color), green(this.color), blue(this.color), this.alpha);
-    circle(this.x, this.y, this.size);
-    pop();
+    window.push();
+    window.noStroke();
+    // Use RGB values directly
+    window.fill(this.color.r, this.color.g, this.color.b, this.alpha);
+    window.circle(this.x, this.y, this.size);
+    window.pop();
   }
 
   isDead() {
@@ -69,70 +76,82 @@ function setupA1H() {
   console.log("🎪 A1H - Corpus Comedian setup started!");
   
   // Check if p5.js functions are available
-  if (typeof background === 'undefined') {
+  if (typeof window.background === 'undefined') {
     console.error('❌ p5.js not loaded! background function not available.');
     return;
   }
+  
+  // Additional check for other essential functions
+  if (typeof window.fill === 'undefined' || typeof window.stroke === 'undefined') {
+    console.error('❌ p5.js drawing functions not available!');
+    return;
+  }
 
-  backgroundColor = color(20, 24, 35);
-  accentColor = color(100, 200, 255);
-  titleColor = color(255, 220, 100);
+  backgroundColor = window.color(20, 24, 35);
+  accentColor = window.color(100, 200, 255);
+  titleColor = window.color(255, 220, 100);
 
   // Create UI elements
-  fileInput = createFileInput(handleFile);
+  fileInput = window.createFileInput(handleFile);
   fileInput.position(30, 80);
   styleButton(fileInput, '#2d3548', '2px solid #4a5568');
 
-  analyzeButton = createButton('📊 View Word Analysis');
+  analyzeButton = window.createButton('📊 View Word Analysis');
   analyzeButton.position(30, 130);
   analyzeButton.mousePressed(toggleWordCloud);
   styleButton(analyzeButton, '#4a90e2');
   analyzeButton.hide();
 
-  generateButton = createButton('🎭 Generate Joke');
+  generateButton = window.createButton('🎭 Generate Joke');
   generateButton.position(30, 180);
   generateButton.mousePressed(generateJoke);
   styleButton(generateButton, '#e74c3c');
   generateButton.hide();
   
   // Add button to load demo text
-  let demoButton = createButton('📝 Load Demo Text');
+  let demoButton = window.createButton('📝 Load Demo Text');
   demoButton.position(30, 230);
   demoButton.mousePressed(loadDemoText);
   styleButton(demoButton, '#27ae60');
 
-  textAlign(CENTER, CENTER);
+  window.textAlign(window.CENTER, window.CENTER);
   
   console.log("✅ A1H project initialized successfully!");
 }
 
 function drawA1H() {
   // Check if p5.js functions are available
-  if (typeof background === 'undefined') {
+  if (typeof window.background === 'undefined') {
     console.error('❌ p5.js functions not available in drawA1H!');
     return;
   }
 
-  background(backgroundColor);
+  // Additional check for drawing functions
+  if (typeof window.fill === 'undefined' || typeof window.stroke === 'undefined') {
+    console.error('❌ p5.js drawing functions not available in drawA1H!');
+    return;
+  }
+
+  window.background(backgroundColor);
 
   // Title
-  push();
-  fill(titleColor);
-  textSize(42);
-  textStyle(BOLD);
-  text('🎪 Corpus Comedian', width / 2, 40);
-  textSize(16);
-  fill(200);
-  textStyle(NORMAL);
-  text('Upload a text file to generate custom knock-knock jokes!', width / 2, 75);
-  pop();
+  window.push();
+  window.fill(titleColor);
+  window.textSize(42);
+  if (typeof window.textStyle === 'function') window.textStyle(window.BOLD);
+  window.text('🎪 Corpus Comedian', width / 2, 40);
+  window.textSize(16);
+  window.fill(200);
+  if (typeof window.textStyle === 'function') window.textStyle(window.NORMAL);
+  window.text('Upload a text file to generate custom knock-knock jokes!', width / 2, 75);
+  window.pop();
 
   if (isFileLoaded) {
-    push();
-    fill(150, 255, 150);
-    textSize(14);
-    text(`✓ File loaded: ${fileName} (${totalWords} words)`, width / 2, 120);
-    pop();
+    window.push();
+    window.fill(150, 255, 150);
+    window.textSize(14);
+    window.text(`✓ File loaded: ${fileName} (${totalWords} words)`, width / 2, 120);
+    window.pop();
   }
 
   if (showWordCloud && topWords.length > 0) {
@@ -296,105 +315,117 @@ function displayJoke() {
   
   let yOffset = 280;
   for (let i = 0; i < jokeState && i < currentJoke.length; i++) {
-    push();
+    window.push();
     
     // Set colors and styles based on joke line
     if (i === 0 || i === 2) {
-      fill(accentColor);
-      textSize(32);
-      if (typeof textStyle !== 'undefined') textStyle(BOLD);
+      window.fill(accentColor);
+      window.textSize(32);
+      if (typeof window.textStyle === 'function') window.textStyle(window.BOLD);
     } else if (i === 4) {
-      fill(255, 220, 100);
-      textSize(28 * punchlineScale);
-      if (typeof textStyle !== 'undefined') textStyle(BOLD);
+      window.fill(255, 220, 100);
+      window.textSize(28 * punchlineScale);
+      if (typeof window.textStyle === 'function') window.textStyle(window.BOLD);
     } else {
-      fill(255);
-      textSize(24);
-      if (typeof textStyle !== 'undefined') textStyle(NORMAL);
+      window.fill(255);
+      window.textSize(24);
+      if (typeof window.textStyle === 'function') window.textStyle(window.NORMAL);
     }
     
     // Draw text
-    text(currentJoke[i], width / 2, yOffset);
+    window.text(currentJoke[i], width / 2, yOffset);
     yOffset += i === 4 ? 80 : 60;
-    pop();
+    window.pop();
   }
 
   if (jokeState >= 5) {
-    push();
-    fill(150);
-    textSize(14);
-    text('Click the button to generate another joke', width / 2, height - 40);
-    pop();
+    window.push();
+    window.fill(150);
+    window.textSize(14);
+    window.text('Click the button to generate another joke', width / 2, height - 40);
+    window.pop();
   }
 }
 
 function displayWordCloud() {
-  push();
-  fill(255);
-  textSize(28);
-  textStyle(BOLD);
-  text('📊 Most Frequent Words', width / 2, 180);
-  pop();
+  window.push();
+  window.fill(255);
+  window.textSize(28);
+  if (typeof window.textStyle === 'function') window.textStyle(window.BOLD);
+  window.text('📊 Most Frequent Words', width / 2, 180);
+  window.pop();
 
   for (let data of wordCloudData) {
-    push();
-    fill(data.color);
-    textSize(data.size);
-    textStyle(BOLD);
-    text(data.word, data.x, data.y);
-    fill(200);
-    textSize(12);
-    text(`(${data.freq})`, data.x, data.y + data.size / 2 + 10);
-    pop();
+    window.push();
+    // Safely handle color - could be p5.Color object or RGB array
+    if (data.color && typeof data.color === 'object' && !Array.isArray(data.color)) {
+      try {
+        let r = window.red(data.color);
+        let g = window.green(data.color);
+        let b = window.blue(data.color);
+        window.fill(r, g, b);
+      } catch (e) {
+        window.fill(data.color); // Fallback
+      }
+    } else {
+      window.fill(data.color);
+    }
+    window.textSize(data.size);
+    if (typeof window.textStyle === 'function') window.textStyle(window.BOLD);
+    window.text(data.word, data.x, data.y);
+    window.fill(200);
+    window.textSize(12);
+    window.text(`(${data.freq})`, data.x, data.y + data.size / 2 + 10);
+    window.pop();
   }
 
-  push();
-  fill(150);
-  textSize(14);
-  text('Word size represents frequency in the text', width / 2, height - 40);
-  pop();
+  window.push();
+  window.fill(150);
+  window.textSize(14);
+  window.text('Word size represents frequency in the text', width / 2, height - 40);
+  window.pop();
 }
 
 function displayInstructions() {
-  push();
-  fill(200);
-  textSize(20);
-  text('Choose an option:', width / 2, 280);
-  pop();
+  window.push();
+  window.fill(200);
+  window.textSize(20);
+  window.text('Choose an option:', width / 2, 280);
+  window.pop();
   
-  push();
-  fill(accentColor);
-  textSize(18);
-  textStyle(BOLD);
-  text('📝 Load Demo Text', width / 2, 330);
-  fill(200);
-  textSize(14);
-  textStyle(NORMAL);
-  text('Quick start with food recommendations', width / 2, 360);
-  pop();
+  window.push();
+  window.fill(accentColor);
+  window.textSize(18);
+  if (typeof window.textStyle === 'function') window.textStyle(window.BOLD);
+  window.text('📝 Load Demo Text', width / 2, 330);
+  window.fill(200);
+  window.textSize(14);
+  if (typeof window.textStyle === 'function') window.textStyle(window.NORMAL);
+  window.text('Quick start with food recommendations', width / 2, 360);
+  window.pop();
   
-  push();
-  fill(150);
-  textSize(18);
-  text('OR', width / 2, 400);
-  pop();
+  window.push();
+  window.fill(150);
+  window.textSize(18);
+  window.text('OR', width / 2, 400);
+  window.pop();
   
-  push();
-  fill(titleColor);
-  textSize(18);
-  textStyle(BOLD);
-  text('📁 Upload Your Own Text File', width / 2, 440);
-  fill(200);
-  textSize(14);
-  textStyle(NORMAL);
-  text('Novels, articles, essays - any .txt file works!', width / 2, 470);
-  pop();
+  window.push();
+  window.fill(titleColor);
+  window.textSize(18);
+  if (typeof window.textStyle === 'function') window.textStyle(window.BOLD);
+  window.text('📁 Upload Your Own Text File', width / 2, 440);
+  window.fill(200);
+  window.textSize(14);
+  if (typeof window.textStyle === 'function') window.textStyle(window.NORMAL);
+  window.text('Novels, articles, essays - any .txt file works!', width / 2, 470);
+  window.pop();
   
-  push();
-  fill(accentColor);
-  textSize(12);
-  text('💡 Tip: Longer texts create more interesting jokes', width / 2, 520);
-  pop();
+  window.push();
+  window.fill(accentColor);
+  window.textSize(12);
+  window.text('💡 Tip: Longer texts create more interesting jokes', width / 2, 520);
+  window.pop();
 }
 
 function toggleWordCloud() {

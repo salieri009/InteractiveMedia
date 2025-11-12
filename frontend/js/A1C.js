@@ -4,46 +4,58 @@
 // UTS 2025 Semester 2
 // ===============================================
 
-// A1C project variables
-let patternType = 0;
-let currentColorMode = 0;
-let shapeSize = 30;
-let spacing = 40;
-let rotationAngle = 0;
-let animationSpeed = 0.02;
+// A1C project variables (use A1C prefix to avoid conflicts)
+let a1c_patternType = 0;
+let a1c_currentColorMode = 0;
+let a1c_shapeSize = 30;
+let a1c_spacing = 40;
+let a1c_rotationAngle = 0;
+let a1c_animationSpeed = 0.02;
 
 // A1C project functions
 function setupA1C() {
   console.log("🎨 A1C project - Pattern Generator initialized!");
   
   // Check if p5.js functions are available
-  if (typeof background === 'undefined') {
+  if (typeof window.background === 'undefined') {
     console.error('❌ p5.js not loaded! background function not available.');
     return;
   }
   
+  // Additional check for other essential functions
+  if (typeof window.fill === 'undefined' || typeof window.stroke === 'undefined') {
+    console.error('❌ p5.js drawing functions not available!');
+    return;
+  }
+  
   // Reset variables
-  patternType = 0;
-  currentColorMode = 0;
-  shapeSize = 30;
-  spacing = 40;
-  rotationAngle = 0;
+  a1c_patternType = 0;
+  a1c_currentColorMode = 0;
+  a1c_shapeSize = 30;
+  a1c_spacing = 40;
+  a1c_rotationAngle = 0;
   
   console.log("✅ A1C project initialized successfully!");
 }
 
 function drawA1C() {
   // Check if p5.js functions are available
-  if (typeof background === 'undefined') {
+  if (typeof window.background === 'undefined') {
     console.error('❌ p5.js functions not available in drawA1C!');
     return;
   }
 
+  // Additional check for drawing functions
+  if (typeof window.fill === 'undefined' || typeof window.stroke === 'undefined') {
+    console.error('❌ p5.js drawing functions not available in drawA1C!');
+    return;
+  }
+
   // Dark background
-  background(20, 25, 40);
+  window.background(20, 25, 40);
   
   // Update animation
-  rotationAngle += animationSpeed;
+  a1c_rotationAngle += a1c_animationSpeed;
   
   // Draw pattern based on current mode
   drawPattern();
@@ -58,16 +70,16 @@ function drawA1C() {
 
 function drawPattern() {
   // Check if p5.js drawing functions are available
-  if (typeof stroke === 'undefined' || typeof fill === 'undefined') {
+  if (typeof window.stroke === 'undefined' || typeof window.fill === 'undefined') {
     console.error('❌ p5.js drawing functions not available!');
     return;
   }
 
-  push();
-  translate(width/2, height/2);
+  window.push();
+  window.translate(width/2, height/2);
   
   // Different pattern types
-  switch(patternType) {
+  switch(a1c_patternType) {
     case 0:
       drawCircularPattern();
       break;
@@ -82,7 +94,7 @@ function drawPattern() {
       break;
   }
   
-  pop();
+  window.pop();
 }
 
 function drawCircularPattern() {
@@ -90,40 +102,40 @@ function drawCircularPattern() {
   let radius = 80;
   
   for(let i = 0; i < numShapes; i++) {
-    let angle = (TWO_PI / numShapes) * i + rotationAngle;
-    let x = cos(angle) * radius;
-    let y = sin(angle) * radius;
+    let angle = (window.TWO_PI / numShapes) * i + a1c_rotationAngle;
+    let x = window.cos(angle) * radius;
+    let y = window.sin(angle) * radius;
     
-    push();
-    translate(x, y);
-    rotate(rotationAngle * 2);
+    window.push();
+    window.translate(x, y);
+    window.rotate(a1c_rotationAngle * 2);
     
     setPatternColor(i);
-    drawShape(shapeSize);
+    drawShape(a1c_shapeSize);
     
-    pop();
+    window.pop();
   }
 }
 
 function drawGridPattern() {
   let cols = 6;
   let rows = 6;
-  let startX = -spacing * (cols-1) / 2;
-  let startY = -spacing * (rows-1) / 2;
+  let startX = -a1c_spacing * (cols-1) / 2;
+  let startY = -a1c_spacing * (rows-1) / 2;
   
   for(let i = 0; i < cols; i++) {
     for(let j = 0; j < rows; j++) {
-      let x = startX + i * spacing;
-      let y = startY + j * spacing;
+      let x = startX + i * a1c_spacing;
+      let y = startY + j * a1c_spacing;
       
-      push();
-      translate(x, y);
-      rotate(rotationAngle + (i + j) * 0.2);
+      window.push();
+      window.translate(x, y);
+      window.rotate(a1c_rotationAngle + (i + j) * 0.2);
       
       setPatternColor(i + j);
-      drawShape(shapeSize * (0.5 + sin(rotationAngle + i + j) * 0.3));
+      drawShape(a1c_shapeSize * (0.5 + window.sin(a1c_rotationAngle + i + j) * 0.3));
       
-      pop();
+      window.pop();
     }
   }
 }
@@ -134,20 +146,20 @@ function drawSpiralPattern() {
   
   for(let i = 0; i < numPoints; i++) {
     let t = i / numPoints;
-    let angle = t * TWO_PI * 3 + rotationAngle;
+    let angle = t * window.TWO_PI * 3 + a1c_rotationAngle;
     let radius = t * maxRadius;
     
-    let x = cos(angle) * radius;
-    let y = sin(angle) * radius;
+    let x = window.cos(angle) * radius;
+    let y = window.sin(angle) * radius;
     
-    push();
-    translate(x, y);
-    rotate(angle);
+    window.push();
+    window.translate(x, y);
+    window.rotate(angle);
     
     setPatternColor(i);
-    drawShape(shapeSize * (1 - t * 0.5));
+    drawShape(a1c_shapeSize * (1 - t * 0.5));
     
-    pop();
+    window.pop();
   }
 }
 
@@ -160,76 +172,76 @@ function drawRadialPattern() {
     let shapesInRing = numShapesPerRing + ring * 2;
     
     for(let i = 0; i < shapesInRing; i++) {
-      let angle = (TWO_PI / shapesInRing) * i + rotationAngle * (ring + 1);
-      let x = cos(angle) * radius;
-      let y = sin(angle) * radius;
+      let angle = (window.TWO_PI / shapesInRing) * i + a1c_rotationAngle * (ring + 1);
+      let x = window.cos(angle) * radius;
+      let y = window.sin(angle) * radius;
       
-      push();
-      translate(x, y);
-      rotate(angle + rotationAngle);
+      window.push();
+      window.translate(x, y);
+      window.rotate(angle + a1c_rotationAngle);
       
       setPatternColor(ring * 10 + i);
-      drawShape(shapeSize * (1 - ring * 0.2));
+      drawShape(a1c_shapeSize * (1 - ring * 0.2));
       
-      pop();
+      window.pop();
     }
   }
 }
 
 function setPatternColor(index) {
-  switch(currentColorMode) {
+  switch(a1c_currentColorMode) {
     case 0: // Rainbow
-      colorMode(HSB, 360, 100, 100);
-      fill((index * 30 + frameCount) % 360, 80, 90);
-      stroke((index * 30 + frameCount) % 360, 80, 60);
+      window.colorMode(window.HSB, 360, 100, 100);
+      window.fill((index * 30 + frameCount) % 360, 80, 90);
+      window.stroke((index * 30 + frameCount) % 360, 80, 60);
       break;
     case 1: // Blue theme
-      colorMode(RGB, 255);
-      fill(100 + index * 20, 150 + index * 10, 255, 180);
-      stroke(50 + index * 10, 100 + index * 5, 200);
+      window.colorMode(window.RGB, 255);
+      window.fill(100 + index * 20, 150 + index * 10, 255, 180);
+      window.stroke(50 + index * 10, 100 + index * 5, 200);
       break;
     case 2: // Warm theme
-      colorMode(RGB, 255);
-      fill(255, 150 - index * 10, 50 + index * 20, 180);
-      stroke(200, 100 - index * 5, 30 + index * 10);
+      window.colorMode(window.RGB, 255);
+      window.fill(255, 150 - index * 10, 50 + index * 20, 180);
+      window.stroke(200, 100 - index * 5, 30 + index * 10);
       break;
     case 3: // Monochrome
-      colorMode(RGB, 255);
+      window.colorMode(window.RGB, 255);
       let gray = 100 + index * 15;
-      fill(gray, gray, gray + 50, 180);
-      stroke(gray - 30, gray - 30, gray);
+      window.fill(gray, gray, gray + 50, 180);
+      window.stroke(gray - 30, gray - 30, gray);
       break;
   }
-  strokeWeight(2);
+  window.strokeWeight(2);
 }
 
 function drawShape(size) {
-  switch(patternType) {
+  switch(a1c_patternType) {
     case 0:
     case 2:
-      ellipse(0, 0, size, size);
+      window.ellipse(0, 0, size, size);
       break;
     case 1:
-      rect(-size/2, -size/2, size, size);
+      window.rect(-size/2, -size/2, size, size);
       break;
     case 3:
-      triangle(0, -size/2, -size/2, size/2, size/2, size/2);
+      window.triangle(0, -size/2, -size/2, size/2, size/2, size/2);
       break;
   }
 }
 
 function drawPatternInfo() {
   // Reset color mode to RGB for UI
-  colorMode(RGB, 255);
-  fill(255, 255, 255, 200);
-  noStroke();
-  textAlign(LEFT);
-  textSize(12);
+  window.colorMode(window.RGB, 255);
+  window.fill(255, 255, 255, 200);
+  window.noStroke();
+  window.textAlign(window.LEFT);
+  window.textSize(12);
   
   let info = [
     `Pattern: ${getPatternName()}`,
     `Color Mode: ${getColorModeName()}`,
-    `Size: ${Math.round(shapeSize)}`,
+    `Size: ${Math.round(a1c_shapeSize)}`,
     ``,
     `Controls:`,
     `1-4: Change Pattern`,
@@ -240,18 +252,18 @@ function drawPatternInfo() {
   ];
   
   for(let i = 0; i < info.length; i++) {
-    text(info[i], 10, 20 + i * 15);
+    window.text(info[i], 10, 20 + i * 15);
   }
 }
 
 function getPatternName() {
   const names = ['Circular', 'Grid', 'Spiral', 'Radial'];
-  return names[patternType] || 'Unknown';
+  return names[a1c_patternType] || 'Unknown';
 }
 
 function getColorModeName() {
   const names = ['Rainbow', 'Cool Blue', 'Warm', 'Monochrome'];
-  return names[currentColorMode] || 'Unknown';
+  return names[a1c_currentColorMode] || 'Unknown';
 }
 
 // ===============================================
@@ -259,55 +271,66 @@ function getColorModeName() {
 // ===============================================
 
 function mousePressedA1C() {
-  console.log(`A1C - Mouse clicked at: (${mouseX}, ${mouseY})`);
+  // Check if mouseX and mouseY are available
+  if (typeof mouseX !== 'undefined' && typeof mouseY !== 'undefined') {
+    console.log(`A1C - Mouse clicked at: (${mouseX}, ${mouseY})`);
+  } else {
+    console.log('A1C - Mouse clicked (coordinates not available)');
+  }
   
   // Change pattern on mouse click
-  patternType = (patternType + 1) % 4;
+  a1c_patternType = (a1c_patternType + 1) % 4;
   console.log(`A1C - Pattern changed to: ${getPatternName()}`);
 }
 
 function keyPressedA1C() {
+  // Check if key is available
+  if (typeof key === 'undefined' || key === null) {
+    console.log('A1C - Key pressed (key not available)');
+    return;
+  }
+  
   console.log(`A1C - Key pressed: ${key}`);
   
   // Pattern selection (1-4)
   if (key >= '1' && key <= '4') {
-    patternType = parseInt(key) - 1;
+    a1c_patternType = parseInt(key) - 1;
     console.log(`A1C - Pattern set to: ${getPatternName()}`);
   }
   
-  // Color mode selection (Q, W, E, R)
+  // Color mode selection (Q, W, E, T)
   switch(key.toLowerCase()) {
     case 'q':
-      currentColorMode = 0;
+      a1c_currentColorMode = 0;
       console.log('A1C - Color mode: Rainbow');
       break;
     case 'w':
-      currentColorMode = 1;
+      a1c_currentColorMode = 1;
       console.log('A1C - Color mode: Cool Blue');
       break;
     case 'e':
-      currentColorMode = 2;
+      a1c_currentColorMode = 2;
       console.log('A1C - Color mode: Warm');
       break;
     case 't':
-      currentColorMode = 3;
+      a1c_currentColorMode = 3;
       console.log('A1C - Color mode: Monochrome');
       break;
     case '+':
     case '=':
-      shapeSize = min(shapeSize + 5, 60);
-      console.log(`A1C - Size increased to: ${shapeSize}`);
+      a1c_shapeSize = window.min(a1c_shapeSize + 5, 60);
+      console.log(`A1C - Size increased to: ${a1c_shapeSize}`);
       break;
     case '-':
-      shapeSize = max(shapeSize - 5, 10);
-      console.log(`A1C - Size decreased to: ${shapeSize}`);
+      a1c_shapeSize = window.max(a1c_shapeSize - 5, 10);
+      console.log(`A1C - Size decreased to: ${a1c_shapeSize}`);
       break;
     case ' ':
-      if (animationSpeed > 0) {
-        animationSpeed = 0;
+      if (a1c_animationSpeed > 0) {
+        a1c_animationSpeed = 0;
         console.log('A1C - Animation paused');
       } else {
-        animationSpeed = 0.02;
+        a1c_animationSpeed = 0.02;
         console.log('A1C - Animation resumed');
       }
       break;
@@ -325,23 +348,59 @@ function keyPressedA1C() {
 // Register A1C project with project manager
 if (typeof projectManager !== 'undefined') {
   console.log('📝 Registering A1C project...');
-  projectManager.registerProject(
-    'a1c',
-    'A1C - Pattern Generator',
-    setupA1C,
-    drawA1C,
-    {
-      mousePressed: mousePressedA1C,
-      keyPressed: keyPressedA1C,
-      description: 'Interactive pattern generator with multiple modes and animations.',
-      canvasSize: { width: 400, height: 400 }
+  
+  // Verify functions are defined before registration
+  if (typeof setupA1C !== 'function') {
+    console.error('❌ setupA1C is not a function!', typeof setupA1C);
+  } else if (typeof drawA1C !== 'function') {
+    console.error('❌ drawA1C is not a function!', typeof drawA1C);
+  } else {
+    const result = projectManager.registerProject(
+      'a1c',
+      'A1C - Pattern Generator',
+      setupA1C,
+      drawA1C,
+      {
+        mousePressed: mousePressedA1C,
+        keyPressed: keyPressedA1C,
+        description: 'Interactive pattern generator with multiple modes and animations.',
+        canvasSize: { width: 400, height: 400 }
+      }
+    );
+    
+    if (result) {
+      console.log('✅ A1C project registered successfully!');
+      // Ensure UI buttons update if UI already initialized
+      if (typeof uiController !== 'undefined' && uiController.initialized) {
+        uiController.addProjectButton('a1c');
+      }
+    } else {
+      console.error('❌ A1C project registration returned false! Check ProjectManager.registerProject for errors.');
     }
-  );
-  console.log('✅ A1C project registered successfully!');
-  // Ensure UI buttons update if UI already initialized
-  if (typeof uiController !== 'undefined' && uiController.initialized) {
-    uiController.addProjectButton('a1c');
   }
 } else {
   console.error('❌ ProjectManager not found! A1C project not registered.');
+  // Retry registration after a short delay
+  setTimeout(() => {
+    if (typeof projectManager !== 'undefined') {
+      console.log('🔄 Retrying A1C project registration...');
+      if (typeof setupA1C === 'function' && typeof drawA1C === 'function') {
+        const result = projectManager.registerProject(
+          'a1c',
+          'A1C - Pattern Generator',
+          setupA1C,
+          drawA1C,
+          {
+            mousePressed: mousePressedA1C,
+            keyPressed: keyPressedA1C,
+            description: 'Interactive pattern generator with multiple modes and animations.',
+            canvasSize: { width: 400, height: 400 }
+          }
+        );
+        if (result) {
+          console.log('✅ A1C project registered successfully on retry!');
+        }
+      }
+    }
+  }, 500);
 }

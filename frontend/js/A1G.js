@@ -16,21 +16,27 @@ function setupA1G() {
   console.log("🎨 A1G - Interactive Pixel Sort setup started!");
   
   // Check if p5.js functions are available
-  if (typeof background === 'undefined') {
+  if (typeof window.background === 'undefined') {
     console.error('❌ p5.js not loaded! background function not available.');
     return;
   }
   
+  // Additional check for other essential functions
+  if (typeof window.fill === 'undefined' || typeof window.stroke === 'undefined') {
+    console.error('❌ p5.js drawing functions not available!');
+    return;
+  }
+  
   // Set color mode to HSB for better hue sorting
-  colorMode(HSB, 360, 100, 100, 100);
+  window.colorMode(window.HSB, 360, 100, 100, 100);
   
   // Load external image
-  loadImage('../assets/images/GQuuuuuux.jpg', 
+  window.loadImage('../assets/images/GQuuuuuux.jpg', 
     function(loadedImg) {
       // Success callback
       console.log("✅ Image loaded successfully!");
       img = loadedImg;
-      currentPixelColor = color(0);
+      currentPixelColor = window.color(0);
       sortedImg = img.get();
       performPixelSort();
     },
@@ -38,7 +44,7 @@ function setupA1G() {
       // Error callback - fallback to procedural image
       console.log("⚠️ Failed to load image, using procedural image instead");
       createProceduralImage();
-      currentPixelColor = color(0);
+      currentPixelColor = window.color(0);
       sortedImg = img.get();
       performPixelSort();
     }
@@ -49,23 +55,29 @@ function setupA1G() {
 
 function drawA1G() {
   // Check if p5.js functions are available
-  if (typeof background === 'undefined') {
+  if (typeof window.background === 'undefined') {
     console.error('❌ p5.js functions not available in drawA1G!');
+    return;
+  }
+  
+  // Additional check for drawing functions
+  if (typeof window.fill === 'undefined' || typeof window.stroke === 'undefined') {
+    console.error('❌ p5.js drawing functions not available in drawA1G!');
     return;
   }
   
   // Check if images are loaded
   if (!img || !sortedImg) {
-    background(220, 20, 95);
-    fill(0, 0, 0);
-    textAlign(CENTER, CENTER);
-    textSize(16);
-    text("Loading image...", width/2, height/2);
+    window.background(220, 20, 95);
+    window.fill(0, 0, 0);
+    window.textAlign(window.CENTER, window.CENTER);
+    window.textSize(16);
+    window.text("Loading image...", width/2, height/2);
     return;
   }
 
   // Background with HSB color
-  background(220, 20, 95);
+  window.background(220, 20, 95);
   
   // Calculate scaled positions for smaller canvas
   let scale = Math.min(width / 900, height / 600);
@@ -77,29 +89,31 @@ function drawA1G() {
   let imgY = 50 * scale + offsetY;
   let imgW = 400 * scale;
   let imgH = 300 * scale;
-  image(img, imgX, imgY, imgW, imgH);
+  window.image(img, imgX, imgY, imgW, imgH);
   
   // Draw sorted image (scaled)
   let sortedX = 450 * scale + offsetX;
   let sortedY = 50 * scale + offsetY;
-  image(sortedImg, sortedX, sortedY, imgW, imgH);
+  window.image(sortedImg, sortedX, sortedY, imgW, imgH);
   
   // Sample pixel color from sorted image if mouse is over it
-  let mouseXInImage = (mouseX - sortedX) / scale;
-  let mouseYInImage = (mouseY - sortedY) / scale;
+  let currentMouseX = typeof mouseX !== 'undefined' ? mouseX : 0;
+  let currentMouseY = typeof mouseY !== 'undefined' ? mouseY : 0;
+  let mouseXInImage = (currentMouseX - sortedX) / scale;
+  let mouseYInImage = (currentMouseY - sortedY) / scale;
   
   if (mouseXInImage >= 0 && mouseXInImage < 400 && 
       mouseYInImage >= 0 && mouseYInImage < 300) {
     currentPixelColor = sortedImg.get(Math.floor(mouseXInImage), Math.floor(mouseYInImage));
     
     // Add trail shape with current color
-    if (mouseIsPressed) {
+    if (typeof mouseIsPressed !== 'undefined' && mouseIsPressed) {
       trailShapes.push({
-        x: mouseX,
-        y: mouseY,
+        x: typeof mouseX !== 'undefined' ? mouseX : 0,
+        y: typeof mouseY !== 'undefined' ? mouseY : 0,
         color: currentPixelColor,
-        size: random(10, 30),
-        shape: Math.floor(random(3)),
+        size: window.random(10, 30),
+        shape: Math.floor(window.random(3)),
         life: 255
       });
       
@@ -112,15 +126,39 @@ function drawA1G() {
   // Draw trail shapes
   for (let i = trailShapes.length - 1; i >= 0; i--) {
     let shape = trailShapes[i];
-    fill(red(shape.color), green(shape.color), blue(shape.color), shape.life);
-    noStroke();
+    
+    // Safely extract RGB values from color
+    let r, g, b;
+    if (shape.color && typeof shape.color === 'object') {
+      // If it's a p5.Color object, extract RGB values
+      try {
+        r = window.red(shape.color);
+        g = window.green(shape.color);
+        b = window.blue(shape.color);
+      } catch (e) {
+        // Fallback: if color extraction fails, use default
+        console.warn('⚠️ Failed to extract color values, using fallback:', e);
+        r = 200; g = 200; b = 200;
+      }
+    } else if (shape.color && typeof shape.color === 'number') {
+      // If it's a numeric color value, convert it
+      r = (shape.color >> 16) & 255;
+      g = (shape.color >> 8) & 255;
+      b = shape.color & 255;
+    } else {
+      // Fallback
+      r = 200; g = 200; b = 200;
+    }
+    
+    window.fill(r, g, b, shape.life);
+    window.noStroke();
     
     if (shape.shape === 0) {
-      ellipse(shape.x, shape.y, shape.size);
+      window.ellipse(shape.x, shape.y, shape.size);
     } else if (shape.shape === 1) {
-      rect(shape.x - shape.size/2, shape.y - shape.size/2, shape.size, shape.size);
+      window.rect(shape.x - shape.size/2, shape.y - shape.size/2, shape.size, shape.size);
     } else {
-      triangle(shape.x, shape.y - shape.size/2, 
+      window.triangle(shape.x, shape.y - shape.size/2, 
               shape.x - shape.size/2, shape.y + shape.size/2,
               shape.x + shape.size/2, shape.y + shape.size/2);
     }
@@ -137,18 +175,18 @@ function drawA1G() {
 
 function createProceduralImage() {
   // Create procedural image
-  img = createGraphics(400, 300);
-  img.colorMode(HSB, 360, 100, 100, 100);
+  img = window.createGraphics(400, 300);
+  img.colorMode(window.HSB, 360, 100, 100, 100);
   img.background(0, 0, 100); // White background in HSB
   
   // Create some colorful shapes for interesting pixel sorting
   for (let i = 0; i < 20; i++) {
-    img.fill(random(0, 360), random(50, 100), random(50, 100), 60);
+    img.fill(window.random(0, 360), window.random(50, 100), window.random(50, 100), 60);
     img.noStroke();
-    let shapeType = Math.floor(random(3));
-    let x = random(img.width);
-    let y = random(img.height);
-    let size = random(20, 80);
+    let shapeType = Math.floor(window.random(3));
+    let x = window.random(img.width);
+    let y = window.random(img.height);
+    let size = window.random(20, 80);
     
     if (shapeType === 0) {
       img.ellipse(x, y, size, size);
@@ -255,46 +293,56 @@ function drawPixelSortUI(scale, offsetX, offsetY) {
   let uiY = 380 * scale + offsetY;
   
   // Draw current pixel color indicator
-  fill(currentPixelColor);
-  stroke(0, 0, 0);
-  strokeWeight(2);
-  rect(uiX, uiY, 60 * scale, 60 * scale);
+  if (currentPixelColor) {
+    window.fill(currentPixelColor);
+  } else {
+    window.fill(0);
+  }
+  window.stroke(0, 0, 0);
+  window.strokeWeight(2);
+  window.rect(uiX, uiY, 60 * scale, 60 * scale);
   
   // Draw text information
-  fill(0, 0, 0);
-  noStroke();
-  textSize(12 * scale);
-  textAlign(LEFT);
+  window.fill(0, 0, 0);
+  window.noStroke();
+  window.textSize(12 * scale);
+  window.textAlign(window.LEFT);
   
   let textY = 40 * scale + offsetY;
-  text("Original Image", uiX, textY);
-  text("Pixel Sorted Image", 450 * scale + offsetX, textY);
-  text("Current Pixel Color", uiX, uiY - 5 * scale);
+  window.text("Original Image", uiX, textY);
+  window.text("Pixel Sorted Image", 450 * scale + offsetX, textY);
+  window.text("Current Pixel Color", uiX, uiY - 5 * scale);
   
   // Instructions
   let instructY = 460 * scale + offsetY;
-  textSize(10 * scale);
-  text("Move mouse over sorted image", uiX, instructY);
-  text("Click and drag to paint with sampled colors", uiX, instructY + 15 * scale);
+  window.textSize(10 * scale);
+  window.text("Move mouse over sorted image", uiX, instructY);
+  window.text("Click and drag to paint with sampled colors", uiX, instructY + 15 * scale);
   
   // Display sort mode info
   let infoY = 500 * scale + offsetY;
-  text("Sort Mode: " + sortMode, uiX, infoY);
-  text("Sort Direction: " + sortDirection, uiX, infoY + 15 * scale);
-  text("Press 'B' for brightness sort, 'H' for hue sort", uiX, infoY + 30 * scale);
-  text("Press 'SPACE' to toggle horizontal/vertical", uiX, infoY + 45 * scale);
+  window.text("Sort Mode: " + sortMode, uiX, infoY);
+  window.text("Sort Direction: " + sortDirection, uiX, infoY + 15 * scale);
+  window.text("Press 'B' for brightness sort, 'H' for hue sort", uiX, infoY + 30 * scale);
+  window.text("Press 'SPACE' to toggle horizontal/vertical", uiX, infoY + 45 * scale);
   
   // Display RGB values
   if (currentPixelColor) {
-    let r = red(currentPixelColor);
-    let g = green(currentPixelColor);
-    let b = blue(currentPixelColor);
-    text("RGB: " + r.toFixed(0) + ", " + g.toFixed(0) + ", " + b.toFixed(0), 
+    let r, g, b;
+    try {
+      r = window.red(currentPixelColor);
+      g = window.green(currentPixelColor);
+      b = window.blue(currentPixelColor);
+    } catch (e) {
+      console.warn('⚠️ Failed to extract color values in UI:', e);
+      r = 0; g = 0; b = 0;
+    }
+    window.text("RGB: " + r.toFixed(0) + ", " + g.toFixed(0) + ", " + b.toFixed(0), 
           uiX + 70 * scale, uiY + 30 * scale);
   }
   
   // Draw trail count
-  text("Trail Shapes: " + trailShapes.length, uiX, infoY + 60 * scale);
+  window.text("Trail Shapes: " + trailShapes.length, uiX, infoY + 60 * scale);
 }
 
 // ----------------------------

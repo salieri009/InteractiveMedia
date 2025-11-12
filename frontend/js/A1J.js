@@ -91,8 +91,8 @@ class GameModel {
     let treasuresPlaced = 0;
     let attempts = 0;
     while (treasuresPlaced < this.config.NUM_TREASURES && attempts < 1000) {
-      let x = floor(random(this.config.GRID_WIDTH));
-      let y = floor(random(this.config.GRID_HEIGHT));
+      let x = window.floor(window.random(this.config.GRID_WIDTH));
+      let y = window.floor(window.random(this.config.GRID_HEIGHT));
       
       if (this.grid[y][x] === TILE_TYPES.FLOOR) {
         this.grid[y][x] = TILE_TYPES.TREASURE;
@@ -278,7 +278,13 @@ class GameView {
    * Main render method called each frame.
    */
   render() {
-    background(40);
+    // Check if p5.js functions are available
+    if (typeof window.background === 'undefined') {
+      console.error('❌ p5.js functions not available in A1J GameView.render!');
+      return;
+    }
+
+    window.background(40);
 
     if (this.model.getMode() === 'editor') {
       this.renderEditor();
@@ -374,11 +380,11 @@ class GameView {
     const px = player.x * this.config.TILE_SIZE + this.config.TILE_SIZE / 2;
     const py = player.y * this.config.TILE_SIZE + this.config.TILE_SIZE / 2;
 
-    push();
-    fill(255, 100, 200);
-    noStroke();
-    circle(px, py, this.config.TILE_SIZE * 0.7);
-    pop();
+    window.push();
+    window.fill(255, 100, 200);
+    window.noStroke();
+    window.circle(px, py, this.config.TILE_SIZE * 0.7);
+    window.pop();
   }
 
   /**
@@ -388,11 +394,11 @@ class GameView {
     const py = this.config.GRID_HEIGHT * this.config.TILE_SIZE;
 
     // Background
-    push();
-    fill(30, 30, 40);
-    noStroke();
-    rect(0, py, width, this.config.PALETTE_HEIGHT);
-    pop();
+    window.push();
+    window.fill(30, 30, 40);
+    window.noStroke();
+    window.rect(0, py, width, this.config.PALETTE_HEIGHT);
+    window.pop();
 
     // Tile buttons
     const tileOptions = [
@@ -435,11 +441,11 @@ class GameView {
   renderUI() {
     const py = this.config.GRID_HEIGHT * this.config.TILE_SIZE;
 
-    push();
-    fill(255);
-    noStroke();
-    textAlign(LEFT, TOP);
-    textSize(14);
+    window.push();
+    window.fill(255);
+    window.noStroke();
+    window.textAlign(window.LEFT, window.TOP);
+    window.textSize(14);
 
     if (this.model.getMode() === 'editor') {
       text('EDITOR MODE | P: Play | S: Save | L: Load | D: Download', 10, py + 5);
@@ -454,15 +460,15 @@ class GameView {
    * Render the win screen overlay.
    */
   renderWinScreen() {
-    push();
-    fill(0, 0, 0, 200);
-    noStroke();
-    rect(0, 0, width, this.config.GRID_HEIGHT * this.config.TILE_SIZE);
+    window.push();
+    window.fill(0, 0, 0, 200);
+    window.noStroke();
+    window.rect(0, 0, width, this.config.GRID_HEIGHT * this.config.TILE_SIZE);
 
-    fill(255, 220, 0);
-    textAlign(CENTER, CENTER);
-    textSize(48);
-    text('🎉 YOU WIN! 🎉', width / 2, 
+    window.fill(255, 220, 0);
+    window.textAlign(window.CENTER, window.CENTER);
+    window.textSize(48);
+    window.text('🎉 YOU WIN! 🎉', width / 2, 
          (this.config.GRID_HEIGHT * this.config.TILE_SIZE) / 2);
 
     textSize(24);
@@ -601,7 +607,13 @@ let a1j_gameView;
 let a1j_gameController;
 
 function setupA1J() {
-  resizeCanvas(
+  // Check if p5.js functions are available
+  if (typeof window.resizeCanvas === 'undefined') {
+    console.error('❌ p5.js not loaded! resizeCanvas function not available.');
+    return;
+  }
+  
+  window.resizeCanvas(
     A1J_CONFIG.GRID_WIDTH * A1J_CONFIG.TILE_SIZE,
     A1J_CONFIG.GRID_HEIGHT * A1J_CONFIG.TILE_SIZE + A1J_CONFIG.PALETTE_HEIGHT
   );
@@ -612,7 +624,9 @@ function setupA1J() {
   a1j_gameController = new GameController(a1j_gameModel, a1j_gameView, A1J_CONFIG);
 }
 
-function drawA1J() {
+// BUGFIX: Define the core draw function first, then wrap it
+// This prevents infinite recursion from function hoisting
+function drawA1J_core() {
   a1j_gameController.update();
 
   // Handle win state transition (auto-return to editor after 3 seconds)
@@ -637,10 +651,13 @@ function drawA1J_handleDrag() {
   }
 }
 
-// Update draw function to include drag handling
-const originalDrawA1J = drawA1J;
+// BUGFIX: Main draw function that combines core logic and drag handling
+// Fixed infinite recursion by using a separate core function instead of trying to wrap
 function drawA1J() {
-  originalDrawA1J();
+  // Call core draw logic
+  drawA1J_core();
+  
+  // Handle mouse drag if pressed
   drawA1J_handleDrag();
 }
 

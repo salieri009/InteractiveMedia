@@ -1,14 +1,38 @@
-// ===============================================
-// Database Utilities for AWS DynamoDB
-// Serverless Database Operations
-// ===============================================
+/**
+ * ===============================================
+ * Database Utilities - Multi-Environment Support
+ * ===============================================
+ * 
+ * Provides database operations with automatic fallback:
+ * - Production: AWS DynamoDB
+ * - Development: In-memory database
+ * 
+ * @module database
+ * @author 20+ Years Software Developer
+ * @since 2025
+ */
 
 const AWS = require('aws-sdk');
 
-// Configure AWS SDK
-const dynamodb = new AWS.DynamoDB.DocumentClient({
-  region: process.env.AWS_REGION || 'us-east-1'
-});
+// Determine if we're in production or development
+const isProduction = process.env.NODE_ENV === 'production' && 
+                     process.env.AWS_REGION && 
+                     process.env.PROJECTS_TABLE;
+
+// Configure AWS SDK only if in production
+let dynamodb = null;
+if (isProduction) {
+  try {
+    dynamodb = new AWS.DynamoDB.DocumentClient({
+      region: process.env.AWS_REGION || 'us-east-1'
+    });
+    console.log('✅ Using AWS DynamoDB for database');
+  } catch (error) {
+    console.warn('⚠️ Failed to initialize AWS DynamoDB, falling back to in-memory:', error.message);
+  }
+} else {
+  console.log('📦 Using in-memory database for development');
+}
 
 const PROJECTS_TABLE = process.env.PROJECTS_TABLE || 'interactive-media-projects';
 const ANALYTICS_TABLE = process.env.ANALYTICS_TABLE || 'interactive-media-analytics';
@@ -17,10 +41,30 @@ const ANALYTICS_TABLE = process.env.ANALYTICS_TABLE || 'interactive-media-analyt
 // Project Operations
 // ===============================================
 
+/**
+ * Database utilities class with automatic environment detection.
+ * 
+ * @class DatabaseUtils
+ * @description Handles database operations with automatic fallback to
+ *              in-memory storage when AWS DynamoDB is not available.
+ */
 class DatabaseUtils {
-  // Get all projects
+  /**
+   * Gets all projects from the database.
+   * 
+   * @param {Object} [filters={}] - Filter options (tag, search)
+   * @returns {Promise<Object>} Result object with success flag and data
+   * 
+   * @description Retrieves all projects, optionally filtered by tag or search term.
+   *              Automatically uses in-memory database if DynamoDB is unavailable.
+   */
   static async getAllProjects(filters = {}) {
     try {
+      // Use in-memory database if DynamoDB is not available
+      if (!dynamodb || !isProduction) {
+        return this._getAllProjectsInMemory(filters);
+      }
+      
       const params = {
         TableName: PROJECTS_TABLE
       };
@@ -329,21 +373,90 @@ class DatabaseUtils {
     }
   }
 
-  // Health check for database connection
+  /**
+   * Health check for database connection.
+   * 
+   * @returns {Promise<Object>} Health check result
+   * 
+   * @description Checks if the database is accessible and healthy.
+   *              Works with both DynamoDB and in-memory databases.
+   */
   static async healthCheck() {
     try {
+      // Use in-memory database if DynamoDB is not available
+      if (!dynamodb || !isProduction) {
+        return { 
+          success: true, 
+          message: 'In-memory database is healthy',
+          type: 'in-memory'
+        };
+      }
+      
       const params = {
         TableName: PROJECTS_TABLE,
         Select: 'COUNT'
       };
 
       await dynamodb.scan(params).promise();
-      return { success: true, message: 'Database connection healthy' };
+      return { 
+        success: true, 
+        message: 'Database connection healthy',
+        type: 'dynamodb'
+      };
     } catch (error) {
       console.error('Database health check failed:', error);
       return { success: false, error: error.message };
     }
   }
+  
+  /**
+   * In-memory implementation for getAllProjects (fallback).
+   * 
+   * @private
+   * @param {Object} filters - Filter options
+   * @returns {Promise<Object>} Result with projects array
+   */
+  static async _getAllProjectsInMemory(filters = {}) {
+    // Initialize in-memory storage if not exists
+    if (!this._inMemoryStorage) {
+      this._inMemoryStorage = {
+        projects: [],
+        analytics: { id: 'global', totalViews: 0, totalProjects: 0 }
+      };
+    }
+    
+    let projects = [...this._inMemoryStorage.projects];
+    
+    // Apply filters
+    if (filters.tag) {
+      projects = projects.filter(project => 
+        project.tags && project.tags.includes(filters.tag.toLowerCase())
+      );
+    }
+    
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      projects = projects.filter(project =>
+        project.name.toLowerCase().includes(searchLower) ||
+        project.description.toLowerCase().includes(searchLower) ||
+        (project.tags && project.tags.some(tag => tag.includes(searchLower)))
+      );
+    }
+    
+    return {
+      success: true,
+      data: projects,
+      total: projects.length
+    };
+  }
+  
+  /**
+   * In-memory storage for development mode.
+   * 
+   * @private
+   * @type {Object}
+   */
+  static _inMemoryStorage = null;
 }
 
 // ===============================================

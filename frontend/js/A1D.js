@@ -1,9 +1,26 @@
-// Urban Glide - 2D Runner Game (p5.js)
+// ===============================================
+// A1D - Urban Glide - 2D Runner Game
+// Interactive Media Assignment - A1D.js
+// UTS 2025 Semester 2
+// ===============================================
+
+// A1D project variables
 let buildings = [];
 let player, game;
 
-function setup() {
-  createCanvas(800, 400);
+function setupA1D() {
+  console.log("🎨 A1D - Urban Glide setup started!");
+  
+  // Check if p5.js functions are available
+  if (typeof window.background === 'undefined') {
+    console.error('❌ p5.js not loaded! background function not available.');
+    return;
+  }
+  
+  // ProjectManager already creates the canvas, so we don't need to call createCanvas
+  
+  // Reset game state
+  buildings = [];
   
   // 플레이어 초기화
   player = {
@@ -18,28 +35,37 @@ function setup() {
   for (let i = 0; i < 12; i++) {
     buildings.push(createBuilding(i * 70 + width));
   }
+  
+  console.log("✅ A1D project initialized successfully!");
 }
 
-function createBuilding(x) {d
-  let w = random(30, 80);
-  let h = random(80, 200);
+// BUGFIX: Removed erroneous 'd' character
+function createBuilding(x) {
+  let w = window.random(30, 80);
+  let h = window.random(80, 200);
   return {
     x: x, y: game.groundY - h, w: w, h: h,
     area: w * h,
-    color: [random(50, 150), random(50, 150), random(100, 200)]
+    color: [window.random(50, 150), window.random(50, 150), window.random(100, 200)]
   };
 }
 
-function draw() {
+function drawA1D() {
+  // Check if p5.js functions are available
+  if (typeof window.background === 'undefined') {
+    console.error('❌ p5.js functions not available in drawA1D!');
+    return;
+  }
+
   // 배경
-  background(25, 25, 50);
+  window.background(25, 25, 50);
   
   // 별
-  fill(255, 200);
+  window.fill(255, 200);
   for (let i = 0; i < 30; i++) {
     let x = (i * 27 + game.score * 0.1) % width;
     let y = (i * 13) % 150;
-    ellipse(x, y, 2);
+    window.ellipse(x, y, 2);
   }
   
   // 건물 업데이트
@@ -47,22 +73,24 @@ function draw() {
   
   // 건물 그리기
   buildings.forEach((b, i) => {
-    fill(b.color[0], b.color[1], b.color[2]);
-    stroke(255, 100);
-    rect(b.x, b.y, b.w, b.h);
+    window.fill(b.color[0], b.color[1], b.color[2]);
+    window.stroke(255, 100);
+    window.rect(b.x, b.y, b.w, b.h);
     
     // 창문
-    fill(255, 255, 100, 150);
+    window.fill(255, 255, 100, 150);
     for (let x = 10; x < b.w - 10; x += 15) {
       for (let y = 10; y < b.h - 10; y += 20) {
-        if (random() > 0.6) rect(b.x + x, b.y + y, 6, 6);
+        if (window.random() > 0.6) window.rect(b.x + x, b.y + y, 6, 6);
       }
     }
     
     // 건물 정보
-    fill(255, 150);
-    textAlign(CENTER);
-    text(`#${i+1}\n${int(b.area)}`, b.x + b.w/2, b.y + b.h/2);
+    window.fill(255, 150);
+    window.textAlign(window.CENTER);
+    // Use Math.floor as fallback if window.int is not available
+    let areaInt = (typeof window.int === 'function') ? window.int(b.area) : Math.floor(b.area);
+    window.text(`#${i+1}\n${areaInt}`, b.x + b.w/2, b.y + b.h/2);
   });
   
   // 플레이어 업데이트 & 그리기
@@ -70,15 +98,18 @@ function draw() {
   drawPlayer();
   
   // 지면
-  fill(60, 60, 60);
-  rect(0, game.groundY, width, height);
+  window.fill(60, 60, 60);
+  window.rect(0, game.groundY, width, height);
   
   // UI
-  fill(255);
-  textAlign(LEFT);
-  text(`Score: ${int(game.score)} | Speed: ${game.speed} | Buildings: ${buildings.length}`, 10, 20);
-  text(`Player Y: ${int(player.y)} | Grounded: ${player.grounded}`, 10, 40);
-  text(`Controls: SPACE-Jump | R-Reverse | S-Sort | +/-Speed`, 10, height-20);
+  window.fill(255);
+  window.textAlign(window.LEFT);
+  // Use Math.floor as fallback if window.int is not available
+  let scoreInt = (typeof window.int === 'function') ? window.int(game.score) : Math.floor(game.score);
+  let playerYInt = (typeof window.int === 'function') ? window.int(player.y) : Math.floor(player.y);
+  window.text(`Score: ${scoreInt} | Speed: ${game.speed} | Buildings: ${buildings.length}`, 10, 20);
+  window.text(`Player Y: ${playerYInt} | Grounded: ${player.grounded}`, 10, 40);
+  window.text(`Controls: SPACE-Jump | R-Reverse | S-Sort | +/-Speed`, 10, height-20);
 }
 
 function updateBuildings() {
@@ -89,7 +120,7 @@ function updateBuildings() {
   if (buildings[0].x + buildings[0].w < 0) {
     buildings.shift(); // 첫 번째 건물 제거
     let lastB = buildings[buildings.length - 1];
-    buildings.push(createBuilding(lastB.x + lastB.w + random(30, 80))); // 새 건물 추가
+    buildings.push(createBuilding(lastB.x + lastB.w + window.random(30, 80))); // 새 건물 추가
   }
 }
 
@@ -116,43 +147,43 @@ function updatePlayer() {
 }
 
 function drawPlayer() {
-  push();
-  translate(player.x + player.w/2, player.y + player.h/2);
+  window.push();
+  window.translate(player.x + player.w/2, player.y + player.h/2);
   
   // 몸체 애니메이션
-  let bob = player.grounded ? sin(player.frame) * 2 : 0;
-  let legOffset = player.grounded ? sin(player.frame * 2) * 5 : 0;
+  let bob = player.grounded ? window.sin(player.frame) * 2 : 0;
+  let legOffset = player.grounded ? window.sin(player.frame * 2) * 5 : 0;
   
   // 머리
-  fill(255, 200, 150);
-  ellipse(0, -15 + bob, 12, 12);
+  window.fill(255, 200, 150);
+  window.ellipse(0, -15 + bob, 12, 12);
   
   // 몸체
-  fill(0, 255, 136);
-  ellipse(0, bob, 10, 16);
+  window.fill(0, 255, 136);
+  window.ellipse(0, bob, 10, 16);
   
   // 팔
-  stroke(255, 200, 150);
-  strokeWeight(2);
-  line(0, -5 + bob, -8, 5 + bob);
-  line(0, -5 + bob, 8, 5 + bob);
+  window.stroke(255, 200, 150);
+  window.strokeWeight(2);
+  window.line(0, -5 + bob, -8, 5 + bob);
+  window.line(0, -5 + bob, 8, 5 + bob);
   
   // 다리
-  stroke(0, 255, 136);
-  strokeWeight(3);
+  window.stroke(0, 255, 136);
+  window.strokeWeight(3);
   if (player.grounded) {
-    line(0, 8 + bob, -5 + legOffset, 18);
-    line(0, 8 + bob, 5 - legOffset, 18);
+    window.line(0, 8 + bob, -5 + legOffset, 18);
+    window.line(0, 8 + bob, 5 - legOffset, 18);
   } else {
-    line(0, 8, -3, 15); // 점프 자세
-    line(0, 8, 3, 15);
+    window.line(0, 8, -3, 15); // 점프 자세
+    window.line(0, 8, 3, 15);
   }
   
-  noStroke();
-  pop();
+  window.noStroke();
+  window.pop();
 }
 
-function keyPressed() {
+function keyPressedA1D() {
   if (key === ' ' && player.grounded) {
     // 점프
     player.vy = -12;
@@ -175,9 +206,38 @@ function keyPressed() {
 }
 
 // 마우스 클릭으로도 점프 가능
-function mousePressed() {
+function mousePressedA1D() {
   if (player.grounded) {
     player.vy = -12;
     player.grounded = false;
   }
+}
+
+// ===============================================
+// Project Registration
+// ===============================================
+
+// Register A1D project with project manager
+if (typeof projectManager !== 'undefined') {
+  console.log('📝 Registering A1D project...');
+  projectManager.registerProject(
+    'a1d',
+    'A1D - Urban Glide',
+    setupA1D,
+    drawA1D,
+    {
+      mousePressed: mousePressedA1D,
+      keyPressed: keyPressedA1D,
+      description: '2D runner game with buildings, jumping mechanics, and interactive controls. Use SPACE to jump, R to reverse, S to sort buildings.',
+      canvasSize: { width: 800, height: 400 }
+    }
+  );
+  console.log('✅ A1D project registered successfully!');
+  
+  // Ensure UI buttons update if UI already initialized
+  if (typeof uiController !== 'undefined' && uiController.initialized) {
+    uiController.addProjectButton('a1d');
+  }
+} else {
+  console.error('❌ ProjectManager not found! A1D project not registered.');
 }
