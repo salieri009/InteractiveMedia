@@ -6,26 +6,25 @@
 
 **Language / 言語 / 언어**
 
-<div align="center">
-
 [![English](https://img.shields.io/badge/English-🇺🇸-blue?style=flat-square)](README.en.md)
 [![日本語](https://img.shields.io/badge/日本語-🇯🇵-red?style=flat-square)](README.ja.md)
 [![한국어](https://img.shields.io/badge/한국어-🇰🇷-green?style=flat-square)](README.ko.md)
-
-</div>
 
 **UTS 2025 Semester 2 - Full-Stack Interactive Media Project Hub**
 
 A comprehensive web application featuring 9 interactive p5.js projects with a modern UI/UX design, serverless backend, and full accessibility compliance.
 
+</div>
+
+---
+
 ## 🚀 Quick Start
 
-<div align="center">
-
 ### Prerequisites
-- Node.js 18.0.0+
-- npm 8.0.0+
-- Modern web browser
+
+- **Node.js** 18.0.0 or higher
+- **npm** 8.0.0 or higher
+- Modern web browser (Chrome, Firefox, Safari, Edge)
 
 ### Installation
 
@@ -41,20 +40,20 @@ npm run setup
 ### Development
 
 ```bash
-# Start frontend
+# Start frontend development server
 npm run dev:frontend
 
-# Start backend (optional)
+# Start backend API server (optional)
 npm run dev:backend
 ```
 
-Open `frontend/index.html` in your browser or use Live Server.
+Open `frontend/index.html` in your browser or use Live Server extension in VS Code.
 
-</div>
+---
 
 ## 🎯 Projects
 
-<div align="center">
+This hub contains **9 interactive p5.js projects**:
 
 | Project | Name | Description |
 |:------:|------|-------------|
@@ -68,29 +67,45 @@ Open `frontend/index.html` in your browser or use Live Server.
 | **A1I** | The Observant Shopper | Computer vision shopping list |
 | **A1J** | Dungeon Tile Painter | Interactive tile-based game |
 
-</div>
+Each project demonstrates different creative coding concepts and interactive media techniques.
+
+---
 
 ## ✨ Key Features
 
-<div align="center">
+- **🎮 Multi-Project Management**  
+  Dynamic project switching with smooth transitions and independent project environments
 
-- **Multi-Project Management** - Dynamic project switching with smooth transitions
-- **Modern UI/UX** - Responsive design with Nielsen's Heuristics compliance
-- **Accessibility First** - WCAG 2.1 AA compliant, keyboard navigation, ARIA labels
-- **Serverless Backend** - AWS Lambda-ready Express.js API
-- **Keyboard Shortcuts** - `1-9` switch projects, `H` help, `←` back, `Esc` close
+- **📱 Modern UI/UX**  
+  Responsive design with 100% Nielsen's Heuristics compliance
 
-</div>
+- **♿ Accessibility First**  
+  WCAG 2.1 AA compliant, full keyboard navigation, ARIA labels
+
+- **☁️ Serverless Backend**  
+  AWS Lambda-ready Express.js API with analytics tracking
+
+- **⌨️ Keyboard Shortcuts**  
+  `1-9` switch projects, `H` help, `←` back, `Esc` close
+
+---
 
 ## 🛠️ Tech Stack
 
-<div align="center">
+**Frontend:**
+- p5.js - Creative coding framework
+- Vanilla JavaScript (ES6+) - Modular architecture
+- CSS Grid/Flexbox - Responsive layout
 
-**Frontend:** p5.js, Vanilla JavaScript (ES6+), CSS Grid/Flexbox  
-**Backend:** Express.js, Node.js 18+  
-**Deployment:** Vercel/Netlify (Serverless)
+**Backend:**
+- Express.js - Serverless API framework
+- Node.js 18+ - Runtime environment
 
-</div>
+**Deployment:**
+- Vercel/Netlify - Serverless hosting
+- CDN - Global content delivery
+
+---
 
 ## 📁 Project Structure
 
@@ -106,24 +121,44 @@ InteractiveMedia/
 └── docs/             # Documentation
 ```
 
+---
+
 ## ➕ Adding New Projects
 
-1. Copy template: `cp frontend/js/_ProjectTemplate.js frontend/js/A1X.js`
-2. Customize project ID, name, and description
-3. Add script tag to `frontend/index.html`
-4. Project appears automatically!
+1. **Copy template:**
+   ```bash
+   cp frontend/js/_ProjectTemplate.js frontend/js/A1X.js
+   ```
+
+2. **Customize project:**
+   - Replace `[PROJECT_ID]` with your project ID (e.g., `a1x`)
+   - Replace `[PROJECT_NAME]` with your project name
+   - Replace `[PROJECT_DESCRIPTION]` with your description
+
+3. **Add to HTML:**
+   ```html
+   <script src="js/A1X.js"></script>
+   ```
+
+4. **Refresh page** - New project button appears automatically! 🎉
+
+---
 
 ## 📚 Documentation
 
-- [QUICK-START.md](QUICK-START.md) - Detailed setup guide
-- [SETUP.md](SETUP.md) - Complete setup instructions
-- [docs/](docs/) - Full documentation
+- **[QUICK-START.md](QUICK-START.md)** - Detailed setup guide
+- **[SETUP.md](SETUP.md)** - Complete setup instructions
+- **[docs/](docs/)** - Full documentation including design plans and architecture guides
+
+---
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) for details.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ---
+
+<div align="center">
 
 ![footer](https://capsule-render.vercel.app/api?type=wave&color=0:667eea,100:764ba2&height=150&section=footer&fontSize=50&fontColor=ffffff&animation=twinkling&text=Built%20with%20❤️%20using%20p5.js&desc=UTS%20Interactive%20Media%202025&descSize=18&fontAlign=50)
 
