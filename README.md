@@ -56,7 +56,7 @@ Open `frontend/index.html` in your browser or use Live Server extension in VS Co
 This hub contains **9 interactive p5.js projects**:
 
 | Project | Name | Description |
-|:------:|------|-------------|
+|:------:|:----:|:-----------:|
 | **A1A** | Basic Shapes | Fundamental p5.js shape drawing |
 | **A1B** | Animated Shapes | Interactive animation with physics |
 | **A1C** | Pattern Generator | Interactive pattern generator with multiple modes |
