@@ -1,0 +1,46 @@
+/* ================================================================
+   Design Tokens — Interactive Media Assignment v2.0.0
+   7:3:1 Design System + Legacy Variable Aliases
+   ================================================================ */
+
+:root {
+  /* ================================================================
+   * 7:3:1 COLOUR SYSTEM — Outer UI Only
+   * Canvas areas (#canvas-wrapper, #canvas-section) are intentionally
+   * excluded from this system to preserve p5.js sketch aesthetics.
+   *
+   * 70%  Dark Navy      — backgrounds, main containers, overlays
+   * 30%  Purple-Blue    — panels, sidebars, interactive UI elements
+   * 10%  Gold           — CTAs, active states, accent highlights
+   * ================================================================ */
+
+  /* Base palette */
+  --color-70:   #1a1a2e;   /* 70% Dominant  — Dark Navy */
+  --color-70b:  #16213e;   /* 70% Variant   — slightly lighter navy */
+  --color-30:   #667eea;   /* 30% Secondary — Purple-Blue */
+  --color-30b:  #764ba2;   /* 30% Variant   — Deep Purple */
+  --color-10:   #ffd93d;   /* 10% Accent    — Gold */
+  --color-10b:  #ffbe0b;   /* 10% Accent hover — Amber */
+
+  /* Semantic aliases — use these in component rules */
+  --color-bg-main:    var(--color-70);
+  --color-bg-panel:   var(--color-30);
+  --color-accent:     var(--color-10);
+  --color-text-on-dark: #f0f0f0;
+  --color-text-muted:   #a0aec0;
+
+  /* ================================================================
+   * LEGACY ALIASES
+   * Kept so existing canvas-area rules and p5.js project styles
+   * continue to resolve without modification.
+   * ================================================================ */
+  --primary-color:   #667eea;
+  --secondary-color: #764ba2;
+  --accent-color:    #34495e;
+  --text-color:      #2c3e50;
+  --bg-light:        rgba(255, 255, 255, 0.95);
+  --shadow:          rgba(0, 0, 0, 0.2);
+  --button-active:   #27ae60;
+  --button-hover:    #3498db;
+  --border-radius:   12px;
+}

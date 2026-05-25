@@ -1,6 +1,6 @@
 {
   "name": "interactive-media-frontend",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Frontend for Interactive Media Assignment - UTS 2025",
   "main": "index.html",
   "scripts": {
@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "type-check": "tsc --noEmit",
     "build:legacy": "vite build --target es2015",
     "test": "echo 'Frontend tests would go here'",
     "lint": "echo 'Linting would go here'"
@@ -16,14 +17,16 @@
     "p5js",
     "interactive-media",
     "frontend",
-    "javascript",
+    "typescript",
     "uts"
   ],
   "author": "UTS Student",
   "license": "MIT",
   "devDependencies": {
     "vite": "^4.4.9",
-    "@vitejs/plugin-legacy": "^4.1.1"
+    "@vitejs/plugin-legacy": "^4.1.1",
+    "typescript": "^5.4.5",
+    "vite-plugin-checker": "^0.6.4"
   },
   "dependencies": {},
   "engines": {

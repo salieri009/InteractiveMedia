@@ -1,0 +1,52 @@
+{
+  "compilerOptions": {
+    /* ================================================================
+     * Frontend TypeScript Configuration — Interactive Media v2.0.0
+     * Target: modern browsers (ES2020), bundled by Vite.
+     * p5.js is CDN-loaded in global mode — do NOT add @types/p5 here.
+     * Custom ambient declarations live in src/types/vendor/p5.d.ts.
+     * ================================================================ */
+
+    /* Language target */
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+
+    /* Module resolution — "bundler" tells TS to let Vite handle it */
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    /* Strict type safety (all strict flags on) */
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* Interop */
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+
+    /* Output */
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+
+    /* Path aliases — shorter imports across the codebase */
+    "baseUrl": ".",
+    "paths": {
+      "@/*":         ["./src/*"],
+      "@types/*":    ["./src/types/*"],
+      "@core/*":     ["./src/core/*"],
+      "@projects/*": ["./src/projects/*"],
+      "@classes/*":  ["./src/classes/*"],
+      "@utils/*":    ["./src/utils/*"]
+    },
+
+    /* Custom type roots — vendor declarations take precedence.
+     * Do NOT list "node" here: the frontend targets browsers (DOM lib is enough).
+     * p5.d.ts and ml5.d.ts in src/types/vendor are picked up via typeRoots. */
+    "typeRoots": ["./node_modules/@types", "./src/types/vendor"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

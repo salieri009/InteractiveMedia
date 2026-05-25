@@ -1,6 +1,6 @@
 {
   "name": "interactive-media-monorepo",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Interactive Media Assignment - Full-Stack Serverless Application",
   "private": true,
   "workspaces": [

@@ -1,0 +1,177 @@
+/* ================================================================
+   Layout — Interactive Media Assignment v2.0.0
+   Structural rules: reset, body, containers, grid, header, footer.
+   Depends on design-tokens.css being loaded first.
+   ================================================================ */
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Base — dark navy body replaces the gradient (7:3:1 — 70%) */
+body {
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+  background: var(--color-bg-main);
+  min-height: 100vh;
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+/* App Container */
+#app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ================================================================
+   Header — 70% Dark Navy background (outer UI)
+   ================================================================ */
+#app-header {
+  text-align: center;
+  background: var(--color-bg-main);
+  padding: 30px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(102, 126, 234, 0.25);
+  margin-bottom: 30px;
+  position: relative;
+  overflow: hidden;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+/* Subtle rotating radial highlight on dark background */
+#app-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%);
+  animation: rotate 20s linear infinite;
+  pointer-events: none;
+}
+
+#app-header h1 {
+  font-size: 2.5em;
+  font-weight: 300;
+  margin-bottom: 10px;
+  color: var(--color-text-on-dark);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 1;
+}
+
+#app-header p {
+  font-size: 1.1em;
+  color: var(--color-text-muted);
+  position: relative;
+  z-index: 1;
+}
+
+/* ================================================================
+   Main Content Grid
+   ================================================================ */
+#main-content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 30px;
+  align-items: start;
+}
+
+/* ================================================================
+   Project Selector Sidebar — 30% Purple-Blue (outer UI)
+   ================================================================ */
+#project-selector {
+  background: var(--color-bg-panel);
+  padding: 25px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  animation: fadeInLeft 0.8s ease-out;
+}
+
+#project-selector h2 {
+  margin-bottom: 20px;
+  color: var(--color-text-on-dark);
+  font-size: 1.5em;
+  font-weight: 400;
+}
+
+/* ================================================================
+   Canvas Section — intentionally light (not 7:3:1)
+   Canvas must remain neutral so p5.js sketches display correctly.
+   ================================================================ */
+#canvas-section {
+  background: var(--bg-light);
+  padding: 25px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 32px var(--shadow);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  animation: fadeInRight 0.8s ease-out;
+  text-align: center;
+}
+
+/* ================================================================
+   Footer — 70% Dark Navy (outer UI)
+   ================================================================ */
+#app-footer {
+  margin-top: 40px;
+  padding: 25px;
+  background: var(--color-bg-main);
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+#app-footer p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95em;
+}
+
+/* Button Container */
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Project meta tags */
+.project-meta {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.project-meta small {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+}
+
+/* Utility classes */
+.hidden { display: none; }
+.center { display: flex; justify-content: center; align-items: center; }
+.debug-border { border: 2px solid red !important; }
+
+/* Status indicators (text colour helpers) */
+.status-online  { color: var(--button-active); }
+.status-offline { color: #e74c3c; }

@@ -1,0 +1,133 @@
+/* ================================================================
+   Responsive Design — Interactive Media Assignment v2.0.0
+   All @media query blocks in one place.
+   Applies to both layout and component adjustments.
+   ================================================================ */
+
+/* ================================================================
+   TABLET (≤1024px) — Switch to single-column layout
+   ================================================================ */
+@media (max-width: 1024px) {
+  #main-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  /* Move project selector below canvas on tablet */
+  #project-selector { order: 2; }
+
+  .button-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .project-btn {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .analytics-panel { margin-top: 15px; }
+}
+
+/* ================================================================
+   MOBILE (≤768px) — Compact layout
+   ================================================================ */
+@media (max-width: 768px) {
+  #app-container {
+    padding: 15px;
+  }
+
+  #app-header {
+    padding: 20px;
+  }
+
+  #app-header h1 {
+    font-size: 2em;
+  }
+
+  .project-btn {
+    padding: 12px 16px;
+    font-size: 0.9em;
+  }
+
+  /* Canvas border thinner on small screens */
+  .canvas-wrapper {
+    border-width: 2px;
+  }
+
+  .control-group {
+    gap: 10px;
+  }
+
+  .control-btn {
+    padding: 8px 15px;
+    font-size: 0.85em;
+  }
+
+  /* Notifications expand to fill mobile width */
+  .notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+  }
+
+  .project-meta {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .status-bar {
+    bottom: 10px;
+    right: 10px;
+    max-width: calc(100% - 20px);
+  }
+
+  .help-content {
+    max-width: 90%;
+    padding: 20px;
+  }
+
+  .welcome-message {
+    padding: 30px 15px;
+  }
+
+  .welcome-message h2 {
+    font-size: 1.5em;
+  }
+
+  .welcome-features {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .empty-state {
+    padding: 40px 15px;
+  }
+
+  .empty-state-icon {
+    font-size: 3em;
+  }
+
+  .button-container-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .project-card {
+    padding: 15px;
+  }
+
+  /* Legacy selector used by some project-specific CSS */
+  #sketch-container {
+    margin: 20px;
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 2em;
+  }
+
+  #canvas-wrapper {
+    border-width: 2px;
+  }
+}

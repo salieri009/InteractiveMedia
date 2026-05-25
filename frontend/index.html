@@ -6,11 +6,22 @@
   <title>Interactive Media Assignment - Project Hub</title>
   <!-- Inline SVG favicon to avoid external file 404s -->
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='100%25' height='100%25' fill='%23667eea'/%3E%3Ctext x='50%25' y='50%25' font-size='36' text-anchor='middle' dy='.35em' fill='white'%3EIM%3C/text%3E%3C/svg%3E" type="image/svg+xml">
-  <link rel="stylesheet" href="./css/style.css">
-  <link rel="stylesheet" href="./css/landing-enhancements.css">
+  <!-- CSS load order: tokens first so variables resolve in all subsequent files -->
+  <link rel="stylesheet" href="./css/design-tokens.css">
+  <link rel="stylesheet" href="./css/layout.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/animations.css">
+  <link rel="stylesheet" href="./css/responsive.css">
+  <!--
+    Script load order — do not rearrange:
+    1. AudioWorkletFix  — patches p5.sound duplicate-registration before p5.js loads
+    2. p5.js + p5.sound — CDN global-mode builds (NOT npm)
+    3. ml5.js           — CDN build (NOT npm)
+    4. TypeScript core + project modules — processed by Vite (type="module")
+  -->
+  <script src="./src/utils/AudioWorkletFix.ts"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"></script>
-  <script src="./js/AudioWorkletFix.js"></script>
   <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
 </head>
 <body>
@@ -26,7 +37,7 @@
   <div id="app-container">
     <!-- Header Section -->
     <header id="app-header" role="banner">
-      <h1>🎨 Interactive Media Projects</h1>
+      <h1>Interactive Media Projects</h1>
       <p>UTS 2025 - Assignment Collection</p>
       <p style="font-size: 0.9em; margin-top: 10px; color: #95a5a6;">
         Explore creative coding projects built with p5.js
@@ -47,7 +58,7 @@
       <section id="canvas-section" role="main" aria-label="Project canvas and information">
         <!-- Enhanced Empty State -->
         <div id="empty-state" class="empty-state" role="status" aria-live="polite">
-          <div class="empty-state-icon">🎨</div>
+          <div class="empty-state-icon" aria-hidden="true"></div>
           <h3>Welcome to Interactive Media Projects</h3>
           <p>
             Select a project from the left to begin exploring creative coding demonstrations.
@@ -55,17 +66,14 @@
           </p>
           <div class="welcome-features">
             <div class="welcome-feature">
-              <span class="welcome-feature-icon">✨</span>
               <h3>Interactive</h3>
               <p>Engage with dynamic visualizations</p>
             </div>
             <div class="welcome-feature">
-              <span class="welcome-feature-icon">🎯</span>
               <h3>Educational</h3>
               <p>Learn creative coding concepts</p>
             </div>
             <div class="welcome-feature">
-              <span class="welcome-feature-icon">🚀</span>
               <h3>Modern</h3>
               <p>Built with latest web technologies</p>
             </div>
@@ -95,9 +103,9 @@
 
     <!-- Footer -->
     <footer id="app-footer" role="contentinfo">
-      <p>Made with ❤️ using p5.js | UTS Interactive Media 2025</p>
+      <p>Made with p5.js | UTS Interactive Media 2025</p>
       <button id="help-btn" class="control-btn" onclick="uxEnhancements.toggleHelp()" aria-label="Show help and keyboard shortcuts" aria-keyshortcuts="h">
-        ❓ Help (Press H)
+        Help (Press H)
       </button>
     </footer>
   </div>
@@ -107,20 +115,25 @@
     ← Back
   </button>
 
-  <!-- JavaScript Files - Load order is important -->
-  <script src="./js/ProjectManager.js"></script>
-  <script src="./js/UIController.js"></script>
-  <script src="./js/APIClient.js"></script>
-  <script src="./js/UXEnhancements.js"></script>
-  <script src="./js/A1A.js"></script>
-  <script src="./js/A1B.js"></script>
-  <script src="./js/A1C.js"></script>
-  <script src="./js/A1D.js"></script>
-  <script src="./js/A1E.js"></script>
-  <script src="./js/A1G.js"></script>
-  <script src="./js/A1H.js"></script>
-  <script src="./js/A1I.js"></script>
-  <script src="./js/A1J.js"></script>
+  <!-- Core framework — must load before project files so projectManager is on window -->
+  <script type="module" src="./src/core/ProjectManager.ts"></script>
+  <script type="module" src="./src/core/UIController.ts"></script>
+  <script type="module" src="./src/core/APIClient.ts"></script>
+  <script type="module" src="./src/core/UXEnhancements.ts"></script>
+  <!-- Shared classes -->
+  <script type="module" src="./src/classes/CarClass.ts"></script>
+  <script type="module" src="./src/classes/DiceRoller.ts"></script>
+  <script type="module" src="./src/classes/OrderToChaos.ts"></script>
+  <!-- Weekly assignment projects — load after core is ready -->
+  <script type="module" src="./src/projects/A1A.ts"></script>
+  <script type="module" src="./src/projects/A1B.ts"></script>
+  <script type="module" src="./src/projects/A1C.ts"></script>
+  <script type="module" src="./src/projects/A1D.ts"></script>
+  <script type="module" src="./src/projects/A1E.ts"></script>
+  <script type="module" src="./src/projects/A1G.ts"></script>
+  <script type="module" src="./src/projects/A1H.ts"></script>
+  <script type="module" src="./src/projects/A1I.ts"></script>
+  <script type="module" src="./src/projects/A1J.ts"></script>
   <!-- Add new project files here -->
 </body>
 </html>
